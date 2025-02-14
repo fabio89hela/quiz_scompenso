@@ -4,3 +4,4 @@ openai
 pysqlite3-binary
 langchain_openai
 langchain
+duckduckgo-search
