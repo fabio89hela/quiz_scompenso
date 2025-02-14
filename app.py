@@ -57,7 +57,8 @@ if st.button("Genera Quiz"):
 
         extract_themes_task = Task(
             description=f"Analizza il testo e individua i {x_temi} temi più rilevanti.",
-            agent=theme_agent
+            agent=theme_agent,
+            expected_output=f"Un elenco di {x_temi} temi principali estratti dai documenti."
         )
 
         # ✅ Agente 2: Generazione Domande
@@ -79,7 +80,8 @@ if st.button("Genera Quiz"):
                 " - Una risposta deve essere errata e completamente controproducente (-5 punti)."
             ),
             agent=question_agent,
-            context=extract_themes_task
+            context=extract_themes_task,
+            expected_output=f"{y_domande} domande con 4 risposte ciascuna e punteggi correttamente assegnati."
         )
 
         # ✅ CrewAI: Esecuzione senza memoria (senza ChromaDB)
