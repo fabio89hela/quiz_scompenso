@@ -2,150 +2,80 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
-import os
 import streamlit as st
-import pdfplumber
-import openai
-import pandas as pd
-from crewai import Crew, Agent, Task
-from io import BytesIO
+from crewai import Agent, Task, Crew
+from langchain_openai import OpenAI
 
-# ✅ Usa la chiave OpenAI dai secrets di Streamlit
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Configura la chiave API di OpenAI
+OPENAI_API_KEY = "your-api-key-here"
 
-# ✅ Streamlit UI
-st.title("📚 Generatore di Quiz da PDF")
-st.write("Carica i documenti PDF e genera un quiz con tematiche estratte automaticamente.")
+def create_agents():
+    """Crea agenti con ruoli specifici."""
+    researcher = Agent(
+        role="Ricercatore AI",
+        goal="Trovare informazioni affidabili per rispondere a una domanda.",
+        backstory="Un esperto di ricerca su internet e database accademici.",
+        verbose=True,
+        allow_delegation=True,
+        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+    )
 
-# 🚀 Upload PDF
-uploaded_files = st.file_uploader("Carica i PDF", type=["pdf"], accept_multiple_files=True)
+    writer = Agent(
+        role="Redattore AI",
+        goal="Scrivere una risposta chiara e strutturata basata sulla ricerca.",
+        backstory="Un esperto in scrittura tecnica e comunicazione chiara.",
+        verbose=True,
+        allow_delegation=False,
+        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+    )
 
-# 🔢 Selezione numero di temi e domande
-x_temi = st.slider("Numero di temi", 1, 20, 10)
-y_domande = st.slider("Numero di domande", 1, 20, 10)
+    reviewer = Agent(
+        role="Revisore AI",
+        goal="Verificare la qualità e la chiarezza della risposta finale.",
+        backstory="Un editor attento ai dettagli che migliora la leggibilità del testo.",
+        verbose=True,
+        allow_delegation=False,
+        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+    )
 
-# 🎯 Selezione della difficoltà
-difficolta = st.selectbox("Scegli la difficoltà", ["Facile", "Intermedio", "Difficile"])
+    return researcher, writer, reviewer
 
-# 🤖 Scelta del modello OpenAI
-modello_openai = st.selectbox("Modello AI", ["gpt-3.5-turbo", "gpt-4-turbo"], index=0)
+def create_crew(researcher, writer, reviewer, user_question):
+    """Crea il CrewAI e definisce i task."""
+    research_task = Task(
+        description=f"Ricerca informazioni affidabili su: {user_question}",
+        agent=researcher
+    )
+    
+    writing_task = Task(
+        description="Scrivi una risposta ben strutturata basata sulla ricerca effettuata.",
+        agent=writer,
+        depends_on=[research_task]
+    )
+    
+    review_task = Task(
+        description="Migliora la leggibilità e correggi eventuali errori nella risposta.",
+        agent=reviewer,
+        depends_on=[writing_task]
+    )
+    
+    crew = Crew(
+        agents=[researcher, writer, reviewer],
+        tasks=[research_task, writing_task, review_task]
+    )
+    
+    return crew
 
-# 🚀 Bottone per generare il quiz
-if st.button("Genera Quiz"):
-    with st.spinner("Analizzando i documenti e generando il quiz..."):
+# Streamlit UI
+st.title("🤖 AI Collaborativa con CrewAI e Streamlit")
+user_question = st.text_input("Inserisci una domanda:")
 
-        # 📝 Estrazione testo dai PDF
-        def extract_text_from_pdfs(pdf_files):
-            text = ""
-            for pdf in pdf_files:
-                with pdfplumber.open(pdf) as pdf_reader:
-                    for page in pdf_reader.pages:
-                        page_text = page.extract_text()
-                        if page_text:
-                            text += page_text + "\n"
-            return text
-
-        # ✅ Otteniamo il testo reale dai PDF
-        testo_completo = extract_text_from_pdfs(uploaded_files)
-        st.write(testo_completo)
-
-        if not testo_completo.strip():
-            st.error("Errore: Il testo estratto dai PDF è vuoto. Assicurati che i PDF contengano testo selezionabile.")
-            st.stop()
-
-        # ✅ Agente 1: Identificazione Temi basati sul PDF
-        theme_agent = Agent(
-            name="Theme Extractor",
-            role="Analizza il testo e identifica i temi principali basandosi esclusivamente sul loro contenuto.",
-            goal=f"Identificare {x_temi} temi principali presenti nel testo.",
-            model=modello_openai,
-            memory=False,
-            backstory="Esperto nell'analisi testuale e nella sintesi delle informazioni. Lavora solo sul contenuto fornito.",
-            instructions=(
-                f"Estrarre i {x_temi} temi principali presenti nel testo. "
-                "NON inventare temi, usa solo le informazioni effettivamente contenute nel testo. "
-                "Fornisci l'elenco dei temi in un formato chiaro e conciso."
-            ),
-            context=testo_completo  # 📌 Passiamo il testo dei PDF come contesto
-        )
-
-        extract_themes_task = Task(
-            description=f"Analizza il testo dei PDF e individua i {x_temi} temi più rilevanti.",
-            agent=theme_agent,
-            expected_output=f"Un elenco di {x_temi} temi estratti dai documenti PDF."
-        )
-
-        # ✅ Agente 2: Generazione Domande basate sui PDF
-        question_agent = Agent(
-            name="Question Generator",
-            role="Genera domande e risposte basate esclusivamente sul contenuto dei documenti PDF.",
-            goal=f"Creare {y_domande} domande con risposte e punteggi bilanciati.",
-            model=modello_openai,
-            memory=False,
-            backstory="Esperto nella creazione di quiz educativi. Utilizza esclusivamente il materiale fornito.",
-            instructions=(
-                f"Per ogni tema fornito, crea {y_domande} domande con 4 opzioni di risposta. "
-                "Le domande devono essere basate esclusivamente sul testo dei documenti PDF e NON devono essere inventate. "
-                "Assegna i punteggi come segue: "
-                " - Una risposta deve essere completamente corretta (5 punti). "
-                " - Una risposta deve essere parzialmente corretta (2 punti). "
-                " - Una risposta deve essere errata ma non dannosa (0 punti). "
-                " - Una risposta deve essere errata e completamente controproducente (-5 punti). "
-                "Fornisci l'output in formato strutturato."
-            ),
-            context=testo_completo  # 📌 Passiamo il testo dei PDF come contesto
-        )
-
-        generate_questions_task = Task(
-            description=f"Genera {y_domande} domande per ogni tema, con 4 risposte e punteggi bilanciati.",
-            agent=question_agent,
-            context=[extract_themes_task],
-            expected_output=f"{y_domande} domande basate sui PDF con risposte strutturate e punteggi corretti."
-        )
-
-        # ✅ CrewAI: Esecuzione senza memoria (senza ChromaDB)
-        crew = Crew(
-            agents=[theme_agent, question_agent],
-            tasks=[extract_themes_task, generate_questions_task],
-            memory=False
-        )
-
-        result = crew.kickoff()
-        st.write(result)
-
-        # 📊 Creazione DataFrame per output
-        quiz_data = []
-        if isinstance(result, list):
-            for domanda in result:
-                quiz_data.append([
-                    domanda.get("tema", "Tema sconosciuto"),
-                    domanda.get("testo", "Domanda non disponibile"),
-                    domanda["opzioni"][0]["testo"], domanda["opzioni"][0]["punteggio"],
-                    domanda["opzioni"][1]["testo"], domanda["opzioni"][1]["punteggio"],
-                    domanda["opzioni"][2]["testo"], domanda["opzioni"][2]["punteggio"],
-                    domanda["opzioni"][3]["testo"], domanda["opzioni"][3]["punteggio"],
-                ])
-        else:
-            st.error("Errore: il formato dell'output non è valido.")
-
-        df = pd.DataFrame(quiz_data, columns=[
-            "Tematica", "Domanda",
-            "Risposta 1", "Punteggio 1",
-            "Risposta 2", "Punteggio 2",
-            "Risposta 3", "Punteggio 3",
-            "Risposta 4", "Punteggio 4"
-        ])
-
-        # 🏁 Download del file Excel
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
-
-        st.success("✅ Quiz generato con successo!")
-        st.download_button(
-            label="📥 Scarica il Quiz in Excel",
-            data=output,
-            file_name="quiz_scompenso_cardiaco.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+if user_question:
+    researcher, writer, reviewer = create_agents()
+    crew = create_crew(researcher, writer, reviewer, user_question)
+    
+    st.write("### 🚀 Elaborazione della risposta...")
+    result = crew.kickoff()
+    
+    st.subheader("📝 Risposta Generata")
+    st.write(result)
