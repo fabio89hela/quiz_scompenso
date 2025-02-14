@@ -6,6 +6,7 @@ import streamlit as st
 from crewai import Crew, Process, Agent, Task
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_openai import ChatOpenAI
+from typing import Any, Dict
 
 # Initialize the OpenAI model for use with agents
 openai = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.5)
