@@ -6,11 +6,14 @@ import pandas as pd
 from crewai import Crew, Agent, Task
 from io import BytesIO
 
+# Disattiva ChromaDB per evitare problemi con SQLite
+os.environ["CREWAI_MEMORY_BACKEND"] = "none"
+
 # Configura OpenAI tramite le Secrets di Streamlit Cloud
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Interfaccia Streamlit
-st.title("📚 Generatore di Quiz da PDF")
+st.title("Generatore di Quiz da PDF")
 st.write("Carica i documenti PDF e genera un quiz con tematiche estratte automaticamente.")
 
 # Upload dei file PDF
