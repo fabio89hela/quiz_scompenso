@@ -110,6 +110,7 @@ if st.button("Genera Quiz"):
         )
 
         result = crew.kickoff()
+        st.write(result)
 
         # 📊 Creazione DataFrame per output
         quiz_data = []
