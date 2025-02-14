@@ -19,13 +19,12 @@ def cerca_su_web(query: str) -> str:
         risultati = [f"{r['title']} - {r['href']}" for r in ddgs.text(query, max_results=3)]
     return "\n".join(risultati)
 
-# Creiamo un tool valido per CrewAI
+# Creiamo un Tool valido per CrewAI
 search_tool = Tool(
     name="Ricerca Web",
-    func=cerca_su_web,
+    func=lambda query: cerca_su_web(query),  # Usa una lambda per passare il parametro correttamente
     description="Usa DuckDuckGo per trovare informazioni aggiornate su un argomento."
 )
-
 def create_agents():
 
     llm = ChatOpenAI(
