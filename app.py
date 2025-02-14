@@ -91,20 +91,42 @@ if st.button("Genera Quiz"):
             memory=False
         )
 
+        # 🛠️ Esegui il CrewAI
         result = crew.kickoff()
+
+        # 🔍 Debug: Stampa la struttura dell'output
+        print(result.raw_output)  # Vedi il contenuto per assicurarti che sia quello atteso
 
         # 📊 Creazione DataFrame per output
         quiz_data = []
-        for tema, domande in result.items():
-            for domanda in domande:
+
+        # Estrarre il testo grezzo dal risultato
+        output_text = result.raw_output  
+
+        # ✅ Verifica se il risultato è una lista o un dizionario
+        if isinstance(output_text, list):  # Se il risultato è una lista di domande
+            for domanda in output_text:
                 quiz_data.append([
-                    tema,
-                    domanda["testo"],
+                    domanda.get("tema", "Tema sconosciuto"),
+                    domanda.get("testo", "Domanda non disponibile"),
                     domanda["opzioni"][0]["testo"], domanda["opzioni"][0]["punteggio"],
                     domanda["opzioni"][1]["testo"], domanda["opzioni"][1]["punteggio"],
                     domanda["opzioni"][2]["testo"], domanda["opzioni"][2]["punteggio"],
                     domanda["opzioni"][3]["testo"], domanda["opzioni"][3]["punteggio"],
                 ])
+        elif isinstance(output_text, dict):  # Se il risultato è un dizionario con più sezioni
+            for tema, domande in output_text.items():
+                for domanda in domande:
+                    quiz_data.append([
+                        tema,
+                        domanda.get("testo", "Domanda non disponibile"),
+                        domanda["opzioni"][0]["testo"], domanda["opzioni"][0]["punteggio"],
+                        domanda["opzioni"][1]["testo"], domanda["opzioni"][1]["punteggio"],
+                        domanda["opzioni"][2]["testo"], domanda["opzioni"][2]["punteggio"],
+                        domanda["opzioni"][3]["testo"], domanda["opzioni"][3]["punteggio"],
+                    ])
+        else:
+            st.error("Errore: formato dei dati non riconosciuto.")
 
         df = pd.DataFrame(quiz_data, columns=[
             "Tematica", "Domanda",
