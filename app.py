@@ -17,7 +17,7 @@ def create_agents():
         backstory="Un esperto di ricerca su internet e database accademici.",
         verbose=True,
         allow_delegation=True,
-        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
     )
 
     writer = Agent(
@@ -26,7 +26,7 @@ def create_agents():
         backstory="Un esperto in scrittura tecnica e comunicazione chiara.",
         verbose=True,
         allow_delegation=False,
-        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
     )
 
     reviewer = Agent(
@@ -35,7 +35,7 @@ def create_agents():
         backstory="Un editor attento ai dettagli che migliora la leggibilità del testo.",
         verbose=True,
         allow_delegation=False,
-        llm=OpenAI(model="gpt-4", openai_api_key=OPENAI_API_KEY)
+        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
     )
 
     return researcher, writer, reviewer
@@ -44,19 +44,22 @@ def create_crew(researcher, writer, reviewer, user_question):
     """Crea il CrewAI e definisce i task."""
     research_task = Task(
         description=f"Ricerca informazioni affidabili su: {user_question}",
-        agent=researcher
+        agent=researcher,
+        expected_output="informazioni dettagliate"
     )
     
     writing_task = Task(
         description="Scrivi una risposta ben strutturata basata sulla ricerca effettuata.",
         agent=writer,
-        depends_on=[research_task]
+        depends_on=[research_task],
+        expected_output="riepilogo strutturato"
     )
     
     review_task = Task(
         description="Migliora la leggibilità e correggi eventuali errori nella risposta.",
         agent=reviewer,
-        depends_on=[writing_task]
+        depends_on=[writing_task],
+        expected_output="sommario di informazioni semplice e chiaro"
     )
     
     crew = Crew(
