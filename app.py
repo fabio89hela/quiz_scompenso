@@ -91,20 +91,29 @@ if st.button("Genera Quiz"):
             memory=False  # 🚨 DISABILITA TOTALMENTE LA MEMORIA
         )
 
+        # 🚨 Verifica del formato del risultato
         result = crew.kickoff()
+        
+        # Se l'output è una tupla, prendi solo la parte con i dati
+        if isinstance(result, tuple):
+            result = result[0]
 
         # 📊 Creazione DataFrame per output
         quiz_data = []
-        for tema, domande in result.items():
-            for domanda in domande:
-                quiz_data.append([
-                    tema,
-                    domanda["testo"],
-                    domanda["opzioni"][0]["testo"], domanda["opzioni"][0]["punteggio"],
-                    domanda["opzioni"][1]["testo"], domanda["opzioni"][1]["punteggio"],
-                    domanda["opzioni"][2]["testo"], domanda["opzioni"][2]["punteggio"],
-                    domanda["opzioni"][3]["testo"], domanda["opzioni"][3]["punteggio"],
-                ])
+        if isinstance(result, dict):  # Verifica che result sia un dizionario
+            for tema, domande in result.items():
+                for domanda in domande:
+                    quiz_data.append([
+                        tema,
+                        domanda.get("testo", ""),
+                        domanda.get("opzioni", [{}])[0].get("testo", ""), domanda.get("opzioni", [{}])[0].get("punteggio", ""),
+                        domanda.get("opzioni", [{}])[1].get("testo", ""), domanda.get("opzioni", [{}])[1].get("punteggio", ""),
+                        domanda.get("opzioni", [{}])[2].get("testo", ""), domanda.get("opzioni", [{}])[2].get("punteggio", ""),
+                        domanda.get("opzioni", [{}])[3].get("testo", ""), domanda.get("opzioni", [{}])[3].get("punteggio", ""),
+                    ])
+        else:
+            st.error("❌ Errore: il formato del risultato non è valido.")
+            st.stop()
 
         df = pd.DataFrame(quiz_data, columns=[
             "Tematica", "Domanda",
