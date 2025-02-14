@@ -96,12 +96,13 @@ if st.button("Genera Quiz"):
 
         # 🔍 Debug: Stampa la struttura dell'output
         print(result)  # Vedi il contenuto per assicurarti che sia quello atteso
-
+        st.write(result)
+        
         # 📊 Creazione DataFrame per output
         quiz_data = []
 
         # Estrarre il testo grezzo dal risultato
-        output_text = result.raw_output  
+        output_text = result  
 
         # ✅ Verifica se il risultato è una lista o un dizionario
         if isinstance(output_text, list):  # Se il risultato è una lista di domande
