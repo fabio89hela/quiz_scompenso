@@ -49,7 +49,7 @@ def create_agents():
 def create_crew(researcher, writer, reviewer, user_question):
     """Crea il CrewAI e definisce i task."""
     research_task = Task(
-        description=f"Ricerca informazioni affidabili su: {user_question}, traducendole in italiano",
+        description=f"Ricerca informazioni affidabili su: {user_question}",
         agent=researcher,
         expected_output="informazioni dettagliate"
     )
