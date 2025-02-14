@@ -7,7 +7,7 @@ import pandas as pd
 # Disattiva ChromaDB per evitare problemi con SQLite
 os.environ["CREWAI_MEMORY_BACKEND"] = "simple"
 
-from crewai import Crew, Agent, Task
+import crewai
 from io import BytesIO
 
 
