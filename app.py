@@ -95,7 +95,6 @@ if st.button("Genera Quiz"):
         result = crew.kickoff()
 
         # 🔍 Debug: Stampa la struttura dell'output
-        print(result)  # Vedi il contenuto per assicurarti che sia quello atteso
         st.write(result)
         
         # 📊 Creazione DataFrame per output
