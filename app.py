@@ -27,7 +27,7 @@ search_tool = Tool(
 
 def create_agents():
 
-    llm = ChatOpenAI(
+    llm = OpenAI(
     model_name="gpt-3.5-turbo",  # Puoi sostituire con "gpt-4"
     openai_api_key=OPENAI_API_KEY
     )
