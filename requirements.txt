@@ -3,3 +3,4 @@ crewai
 openai
 pysqlite3-binary
 langchain_openai
+langchain
