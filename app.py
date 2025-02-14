@@ -11,26 +11,27 @@ from langchain.tools import Tool
 # Configura la chiave API di OpenAI
 OPENAI_API_KEY = "your-api-key-here"
 
-# Configura il modello GPT-3.5-Turbo
-llm = OpenAI(
-    model_name="gpt-3.5-turbo",  # Usa GPT-3.5 invece di GPT-4
-    openai_api_key=OPENAI_API_KEY
-)
-
 # Funzione per cercare informazioni aggiornate su DuckDuckGo
-def cerca_su_web(query):
+def cerca_su_web(query: str) -> str:
+    """Esegue una ricerca su DuckDuckGo e restituisce i primi risultati."""
     with DDGS() as ddgs:
-        risultati = [r["title"] + " - " + r["href"] for r in ddgs.text(query, max_results=3)]
+        risultati = [f"{r['title']} - {r['href']}" for r in ddgs.text(query, max_results=3)]
     return "\n".join(risultati)
 
 # Creiamo un tool valido per CrewAI
 search_tool = Tool(
     name="Ricerca Web",
     func=cerca_su_web,
-    description="Usa DuckDuckGo per trovare informazioni aggiornate in italiano."
+    description="Usa DuckDuckGo per trovare informazioni aggiornate su un argomento."
 )
 
 def create_agents():
+
+    llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",  # Puoi sostituire con "gpt-4"
+    openai_api_key=OPENAI_API_KEY
+    )
+    
     """Crea agenti con ruoli specifici."""
     researcher = Agent(
         role="Ricercatore AI",
