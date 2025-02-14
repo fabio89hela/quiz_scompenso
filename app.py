@@ -19,8 +19,8 @@ def create_agents():
     """Crea agenti con ruoli specifici."""
     researcher = Agent(
         role="Ricercatore AI",
-        goal="Trovare informazioni affidabili per rispondere a una domanda.",
-        backstory="Un esperto di ricerca su internet e database accademici.",
+        goal="Trovare informazioni affidabili per rispondere a una domanda in italiano.",
+        backstory="Un esperto di ricerca su internet e database accademici rispondendo esclusivamente in italiano.",
         verbose=True,
         allow_delegation=True,
         llm=llm
