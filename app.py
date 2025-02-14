@@ -28,8 +28,8 @@ def create_agents():
 
     writer = Agent(
         role="Redattore AI",
-        goal="Scrivere una risposta chiara e strutturata basata sulla ricerca.",
-        backstory="Un esperto in scrittura tecnica e comunicazione chiara.",
+        goal="Scrivere una risposta chiara e strutturata, in italiano basata sulla ricerca.",
+        backstory="Un esperto in scrittura tecnica e comunicazione chiara che risponde esclusivamente in italiano.",
         verbose=True,
         allow_delegation=False,
         llm=llm
@@ -37,8 +37,8 @@ def create_agents():
 
     reviewer = Agent(
         role="Revisore AI",
-        goal="Verificare la qualità e la chiarezza della risposta finale.",
-        backstory="Un editor attento ai dettagli che migliora la leggibilità del testo.",
+        goal="Verificare la qualità e la chiarezza in italiano della risposta finale.",
+        backstory="Un editor attento ai dettagli che migliora la leggibilità del testo rispondendo esclusivamente in italiano.",
         verbose=True,
         allow_delegation=False,
         llm=llm
