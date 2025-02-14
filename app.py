@@ -39,7 +39,7 @@ def create_agents():
         backstory="Un esperto di ricerca su internet e database accademici rispondendo esclusivamente in italiano.",
         verbose=True,
         allow_delegation=True,
-        tools=[cerca_su_web], 
+        tools=[search_tool], 
         llm=llm
     )
 
