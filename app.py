@@ -51,7 +51,8 @@ if st.button("Genera Quiz"):
             role="Identifica i temi principali dai documenti PDF.",
             goal=f"Identificare {x_temi} temi principali basandosi sul contenuto dei documenti.",
             model=modello_openai,
-            memory=False  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            memory=False,  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            backstory="Esperto analista di documenti con capacità avanzate di identificazione dei temi principali."
         )
 
         extract_themes_task = Task(
@@ -65,7 +66,8 @@ if st.button("Genera Quiz"):
             role="Genera domande su ogni tema con risposte bilanciate.",
             goal=f"Creare {y_domande} domande con risposte e punteggi bilanciati.",
             model=modello_openai,
-            memory=False  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            memory=False,  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            backstory="Specialista nella creazione di quiz educativi, con particolare attenzione alla validità scientifica delle risposte."
         )
 
         generate_questions_task = Task(
