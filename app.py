@@ -6,17 +6,17 @@ import pandas as pd
 from crewai import Crew, Agent, Task
 from io import BytesIO
 
-# ✅ Configura OpenAI usando Streamlit secrets
+# ✅ Usa la chiave OpenAI dai secrets di Streamlit
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# ✅ Configura l'interfaccia utente con Streamlit
+# ✅ Streamlit UI
 st.title("📚 Generatore di Quiz da PDF")
 st.write("Carica i documenti PDF e genera un quiz con tematiche estratte automaticamente.")
 
-# 🚀 Upload dei file PDF
+# 🚀 Upload PDF
 uploaded_files = st.file_uploader("Carica i PDF", type=["pdf"], accept_multiple_files=True)
 
-# 🔢 Selezione di X (temi) e Y (domande)
+# 🔢 Selezione numero di temi e domande
 x_temi = st.slider("Numero di temi", 1, 20, 10)
 y_domande = st.slider("Numero di domande", 1, 20, 10)
 
@@ -26,11 +26,11 @@ difficolta = st.selectbox("Scegli la difficoltà", ["Facile", "Intermedio", "Dif
 # 🤖 Scelta del modello OpenAI
 modello_openai = st.selectbox("Modello AI", ["gpt-3.5-turbo", "gpt-4-turbo"], index=0)
 
-# 🚀 Bottone per avviare il processo
+# 🚀 Bottone per generare il quiz
 if st.button("Genera Quiz"):
     with st.spinner("Analizzando i documenti e generando il quiz..."):
 
-        # 📝 Funzione per estrarre testo dai PDF
+        # 📝 Estrazione testo dai PDF
         def extract_text_from_pdfs(pdf_files):
             text = ""
             for pdf in pdf_files:
@@ -39,7 +39,6 @@ if st.button("Genera Quiz"):
                         text += page.extract_text() + "\n"
             return text
 
-        # 📝 Estrazione testo dai PDF caricati
         testo_completo = extract_text_from_pdfs(uploaded_files)
 
         # ✅ Agente 1: Identificazione Temi
@@ -48,7 +47,7 @@ if st.button("Genera Quiz"):
             role="Identifica i temi principali dai documenti PDF.",
             goal=f"Identificare {x_temi} temi principali basandosi sul contenuto dei documenti.",
             model=modello_openai,
-            memory=None  # 🔴 DISABILITA CHROMA PER STREAMLIT CLOUD
+            memory=False  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
         )
 
         extract_themes_task = Task(
@@ -60,9 +59,9 @@ if st.button("Genera Quiz"):
         question_agent = Agent(
             name="Question Generator",
             role="Genera domande su ogni tema con risposte bilanciate.",
-            goal=f"Creare {y_domande} domande con risposte e punteggi correttamente bilanciati.",
+            goal=f"Creare {y_domande} domande con risposte e punteggi bilanciati.",
             model=modello_openai,
-            memory=None  # 🔴 DISABILITA CHROMA PER STREAMLIT CLOUD
+            memory=False  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
         )
 
         generate_questions_task = Task(
@@ -77,16 +76,16 @@ if st.button("Genera Quiz"):
             context=extract_themes_task
         )
 
-        # ✅ CrewAI: Creazione e avvio (senza ChromaDB)
+        # ✅ CrewAI: Esecuzione senza memoria (senza ChromaDB)
         crew = Crew(
             agents=[theme_agent, question_agent],
             tasks=[extract_themes_task, generate_questions_task],
-            memory=False  # 🔴 DISABILITA CHROMA PER STREAMLIT CLOUD
+            memory=False  # 🚨 DISABILITA TOTALMENTE LA MEMORIA
         )
 
         result = crew.kickoff()
 
-        # 📊 Creazione DataFrame per l'output
+        # 📊 Creazione DataFrame per output
         quiz_data = []
         for tema, domande in result.items():
             for domanda in domande:
