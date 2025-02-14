@@ -1,0 +1,6 @@
+streamlit
+crewai
+openai
+pdfplumber
+pandas
+xlsxwriter
