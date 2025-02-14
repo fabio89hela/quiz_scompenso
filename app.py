@@ -51,7 +51,7 @@ if st.button("Genera Quiz"):
             role="Identifica i temi principali dai documenti PDF.",
             goal=f"Identificare {x_temi} temi principali basandosi sul contenuto dei documenti.",
             model=modello_openai,
-            memory=False,  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            memory=False,  
             backstory="Esperto analista di documenti con capacità avanzate di identificazione dei temi principali."
         )
 
@@ -67,7 +67,7 @@ if st.button("Genera Quiz"):
             role="Genera domande su ogni tema con risposte bilanciate.",
             goal=f"Creare {y_domande} domande con risposte e punteggi bilanciati.",
             model=modello_openai,
-            memory=False,  # 🚨 DISABILITA LA MEMORIA PERSISTENTE
+            memory=False,  
             backstory="Specialista nella creazione di quiz educativi, con particolare attenzione alla validità scientifica delle risposte."
         )
 
@@ -88,32 +88,38 @@ if st.button("Genera Quiz"):
         crew = Crew(
             agents=[theme_agent, question_agent],
             tasks=[extract_themes_task, generate_questions_task],
-            memory=False  # 🚨 DISABILITA TOTALMENTE LA MEMORIA
+            memory=False  
         )
 
         # 🚨 Verifica del formato del risultato
         result = crew.kickoff()
-        
-        # Se l'output è una tupla, prendi solo la parte con i dati
+
+        # 🔍 DEBUG: Mostra il tipo di `result`
+        st.write(f"🔍 Debug: tipo di result = {type(result)}")
+
+        # 🚨 Se il risultato è una tupla, prendiamo solo il primo elemento
         if isinstance(result, tuple):
             result = result[0]
+            st.write("📌 Il risultato era una tupla, è stato convertito.")
+
+        # 🚨 Se il risultato non è un dizionario, mostriamo errore
+        if not isinstance(result, dict):
+            st.error("❌ Errore: il formato del risultato non è valido. Output ricevuto:")
+            st.write(result)  # Stampa l'output ricevuto per debug
+            st.stop()
 
         # 📊 Creazione DataFrame per output
         quiz_data = []
-        if isinstance(result, dict):  # Verifica che result sia un dizionario
-            for tema, domande in result.items():
-                for domanda in domande:
-                    quiz_data.append([
-                        tema,
-                        domanda.get("testo", ""),
-                        domanda.get("opzioni", [{}])[0].get("testo", ""), domanda.get("opzioni", [{}])[0].get("punteggio", ""),
-                        domanda.get("opzioni", [{}])[1].get("testo", ""), domanda.get("opzioni", [{}])[1].get("punteggio", ""),
-                        domanda.get("opzioni", [{}])[2].get("testo", ""), domanda.get("opzioni", [{}])[2].get("punteggio", ""),
-                        domanda.get("opzioni", [{}])[3].get("testo", ""), domanda.get("opzioni", [{}])[3].get("punteggio", ""),
-                    ])
-        else:
-            st.error("❌ Errore: il formato del risultato non è valido.")
-            st.stop()
+        for tema, domande in result.items():
+            for domanda in domande:
+                quiz_data.append([
+                    tema,
+                    domanda.get("testo", ""),
+                    domanda.get("opzioni", [{}])[0].get("testo", ""), domanda.get("opzioni", [{}])[0].get("punteggio", ""),
+                    domanda.get("opzioni", [{}])[1].get("testo", ""), domanda.get("opzioni", [{}])[1].get("punteggio", ""),
+                    domanda.get("opzioni", [{}])[2].get("testo", ""), domanda.get("opzioni", [{}])[2].get("punteggio", ""),
+                    domanda.get("opzioni", [{}])[3].get("testo", ""), domanda.get("opzioni", [{}])[3].get("punteggio", ""),
+                ])
 
         df = pd.DataFrame(quiz_data, columns=[
             "Tematica", "Domanda",
