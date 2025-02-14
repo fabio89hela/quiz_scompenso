@@ -3,11 +3,13 @@ import streamlit as st
 import pdfplumber
 import openai
 import pandas as pd
-from crewai import Crew, Agent, Task
-from io import BytesIO
 
 # Disattiva ChromaDB per evitare problemi con SQLite
 os.environ["CREWAI_MEMORY_BACKEND"] = "none"
+
+from crewai import Crew, Agent, Task
+from io import BytesIO
+
 
 # Configura OpenAI tramite le Secrets di Streamlit Cloud
 openai.api_key = st.secrets["OPENAI_API_KEY"]
