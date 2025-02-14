@@ -56,14 +56,14 @@ if st.button("Genera Quiz"):
         # ✅ Agente 1: Identificazione Temi basati sul PDF
         theme_agent = Agent(
             name="Theme Extractor",
-            role="Analizza i PDF e identifica i temi principali basandosi esclusivamente sul loro contenuto.",
-            goal=f"Identificare {x_temi} temi principali presenti nei documenti caricati.",
+            role="Analizza il testo e identifica i temi principali basandosi esclusivamente sul loro contenuto.",
+            goal=f"Identificare {x_temi} temi principali presenti nel testo.",
             model=modello_openai,
             memory=False,
             backstory="Esperto nell'analisi testuale e nella sintesi delle informazioni. Lavora solo sul contenuto fornito.",
             instructions=(
-                f"Estrarre i {x_temi} temi principali presenti nei documenti forniti. "
-                "NON inventare temi, usa solo le informazioni effettivamente contenute nei PDF. "
+                f"Estrarre i {x_temi} temi principali presenti nel testo. "
+                "NON inventare temi, usa solo le informazioni effettivamente contenute nel testo. "
                 "Fornisci l'elenco dei temi in un formato chiaro e conciso."
             ),
             context=testo_completo  # 📌 Passiamo il testo dei PDF come contesto
