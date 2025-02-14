@@ -5,13 +5,12 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 from crewai import Agent, Task, Crew
 from langchain_openai import OpenAI
-from langchain.chat_models import ChatOpenAI
 
 # Configura la chiave API di OpenAI
 OPENAI_API_KEY = "your-api-key-here"
 
 # Configura il modello GPT-3.5-Turbo
-llm = ChatOpenAI(
+llm = OpenAI(
     model_name="gpt-3.5-turbo",  # Usa GPT-3.5 invece di GPT-4
     openai_api_key=OPENAI_API_KEY
 )
