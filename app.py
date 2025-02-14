@@ -5,6 +5,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 from crewai import Agent, Task, Crew
 from langchain_openai import OpenAI
+from langchain.chat_models import ChatOpenAI
 
 # Configura la chiave API di OpenAI
 OPENAI_API_KEY = "your-api-key-here"
