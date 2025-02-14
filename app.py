@@ -3,6 +3,7 @@ import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import streamlit as st
+from duckduckgo_search import DDGS
 from crewai import Agent, Task, Crew
 from langchain_openai import OpenAI
 
@@ -15,6 +16,12 @@ llm = OpenAI(
     openai_api_key=OPENAI_API_KEY
 )
 
+def cerca_su_web(query):
+    """Funzione per cercare informazioni aggiornate su DuckDuckGo"""
+    with DDGS() as ddgs:
+        risultati = [r["title"] + " - " + r["href"] for r in ddgs.text(query, max_results=3)]
+    return "\n".join(risultati)
+
 def create_agents():
     """Crea agenti con ruoli specifici."""
     researcher = Agent(
@@ -23,6 +30,7 @@ def create_agents():
         backstory="Un esperto di ricerca su internet e database accademici rispondendo esclusivamente in italiano.",
         verbose=True,
         allow_delegation=True,
+        tools=[cerca_su_web], 
         llm=llm
     )
 
