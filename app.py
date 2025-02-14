@@ -45,7 +45,7 @@ def create_agents():
 
     writer = Agent(
         role="Redattore AI",
-        goal="Scrivere una risposta che sintetizza in italiano i risultati espliciti della richiesta.",
+        goal="Scrivere una risposta che sintetizza in italiano i risultati principali della ricerca.",
         backstory="Un esperto in sintesi e comunicazione che risponde esclusivamente in italiano.",
         verbose=True,
         allow_delegation=False,
