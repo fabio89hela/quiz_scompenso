@@ -6,6 +6,7 @@ import streamlit as st
 from duckduckgo_search import DDGS
 from crewai import Agent, Task, Crew
 from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from langchain.tools import Tool
 
 # Configura la chiave API di OpenAI
