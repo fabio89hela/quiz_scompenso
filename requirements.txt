@@ -1,6 +1,4 @@
-streamlit
-crewai
-openai
-pdfplumber
-pandas
-xlsxwriter
+streamlit 
+crewai 
+langchain-core 
+langchain-openai
