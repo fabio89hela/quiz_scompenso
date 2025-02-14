@@ -2,6 +2,4 @@ streamlit
 crewai 
 openai
 pysqlite3-binary
-pdfplumber
-pandas
-xlsxwriter
+langchain_openai
