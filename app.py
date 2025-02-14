@@ -16,11 +16,18 @@ llm = OpenAI(
     openai_api_key=OPENAI_API_KEY
 )
 
+# Funzione per cercare informazioni aggiornate su DuckDuckGo
 def cerca_su_web(query):
-    """Funzione per cercare informazioni aggiornate su DuckDuckGo"""
     with DDGS() as ddgs:
         risultati = [r["title"] + " - " + r["href"] for r in ddgs.text(query, max_results=3)]
     return "\n".join(risultati)
+
+# Creiamo un tool valido per CrewAI
+search_tool = Tool(
+    name="Ricerca Web",
+    func=cerca_su_web,
+    description="Usa DuckDuckGo per trovare informazioni aggiornate in italiano."
+)
 
 def create_agents():
     """Crea agenti con ruoli specifici."""
