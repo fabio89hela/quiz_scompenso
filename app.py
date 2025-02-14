@@ -9,6 +9,12 @@ from langchain_openai import OpenAI
 # Configura la chiave API di OpenAI
 OPENAI_API_KEY = "your-api-key-here"
 
+# Configura il modello GPT-3.5-Turbo
+llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",  # Usa GPT-3.5 invece di GPT-4
+    openai_api_key=OPENAI_API_KEY
+)
+
 def create_agents():
     """Crea agenti con ruoli specifici."""
     researcher = Agent(
@@ -17,7 +23,7 @@ def create_agents():
         backstory="Un esperto di ricerca su internet e database accademici.",
         verbose=True,
         allow_delegation=True,
-        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
+        llm=llm
     )
 
     writer = Agent(
@@ -26,7 +32,7 @@ def create_agents():
         backstory="Un esperto in scrittura tecnica e comunicazione chiara.",
         verbose=True,
         allow_delegation=False,
-        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
+        llm=llm
     )
 
     reviewer = Agent(
@@ -35,7 +41,7 @@ def create_agents():
         backstory="Un editor attento ai dettagli che migliora la leggibilità del testo.",
         verbose=True,
         allow_delegation=False,
-        llm=OpenAI(model="gpt-3.5", openai_api_key=OPENAI_API_KEY)
+        llm=llm
     )
 
     return researcher, writer, reviewer
