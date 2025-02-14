@@ -3,39 +3,37 @@ import streamlit as st
 import pdfplumber
 import openai
 import pandas as pd
-
-# Disattiva ChromaDB per evitare problemi con SQLite
-os.environ["CREWAI_MEMORY_BACKEND"] = "simple"
-
-import crewai
+from crewai import Crew, Agent, Task
 from io import BytesIO
 
+# 🚨 Forza CrewAI a NON usare ChromaDB o SQLite
+os.environ["CREWAI_MEMORY_BACKEND"] = "no_memory"
 
-# Configura OpenAI tramite le Secrets di Streamlit Cloud
+# ✅ Configura OpenAI tramite le Secrets di Streamlit Cloud
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Interfaccia Streamlit
-st.title("Generatore di Quiz da PDF")
+# ✅ Interfaccia Streamlit
+st.title("📚 Generatore di Quiz da PDF")
 st.write("Carica i documenti PDF e genera un quiz con tematiche estratte automaticamente.")
 
-# Upload dei file PDF
+# 🚀 Upload dei file PDF
 uploaded_files = st.file_uploader("Carica i PDF", type=["pdf"], accept_multiple_files=True)
 
-# Selezione X (temi) e Y (domande)
+# 🔢 Selezione X (temi) e Y (domande)
 x_temi = st.slider("Numero di temi", 1, 20, 10)
 y_domande = st.slider("Numero di domande", 1, 20, 10)
 
-# Scelta della difficoltà
+# 🎯 Scelta della difficoltà
 difficolta = st.selectbox("Scegli la difficoltà", ["Facile", "Intermedio", "Difficile"])
 
-# Modello OpenAI
+# 🤖 Modello OpenAI
 modello_openai = st.selectbox("Modello AI", ["gpt-3.5-turbo", "gpt-4-turbo"], index=0)
 
-# Bottone per avviare il processo
+# 🚀 Bottone per avviare il processo
 if st.button("Genera Quiz"):
     with st.spinner("Analizzando i documenti e generando il quiz..."):
 
-        # Funzione per estrarre testo dai PDF
+        # 📝 Funzione per estrarre testo dai PDF
         def extract_text_from_pdfs(pdf_files):
             text = ""
             for pdf in pdf_files:
@@ -44,10 +42,10 @@ if st.button("Genera Quiz"):
                         text += page.extract_text() + "\n"
             return text
 
-        # Estrazione testo
+        # 📝 Estrazione testo
         testo_completo = extract_text_from_pdfs(uploaded_files)
 
-        # Agente 1: Identificazione Temi
+        # ✅ Agente 1: Identificazione Temi
         theme_agent = Agent(
             name="Theme Extractor",
             role="Identifica i temi principali dai documenti PDF.",
@@ -60,7 +58,7 @@ if st.button("Genera Quiz"):
             agent=theme_agent
         )
 
-        # Agente 2: Generazione Domande
+        # ✅ Agente 2: Generazione Domande
         question_agent = Agent(
             name="Question Generator",
             role="Genera domande su ogni tema con risposte bilanciate.",
@@ -80,7 +78,7 @@ if st.button("Genera Quiz"):
             context=extract_themes_task
         )
 
-        # CrewAI: Avvio
+        # ✅ CrewAI: Avvio
         crew = Crew(
             agents=[theme_agent, question_agent],
             tasks=[extract_themes_task, generate_questions_task]
@@ -88,7 +86,7 @@ if st.button("Genera Quiz"):
 
         result = crew.kickoff()
 
-        # Creazione DataFrame
+        # 📊 Creazione DataFrame
         quiz_data = []
         for tema, domande in result.items():
             for domanda in domande:
@@ -109,15 +107,15 @@ if st.button("Genera Quiz"):
             "Risposta 4", "Punteggio 4"
         ])
 
-        # Download Excel
+        # 🏁 Download Excel
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df.to_excel(writer, index=False)
         output.seek(0)
 
-        st.success("Quiz generato con successo!")
+        st.success("✅ Quiz generato con successo!")
         st.download_button(
-            label="Scarica il Quiz in Excel",
+            label="📥 Scarica il Quiz in Excel",
             data=output,
             file_name="quiz_scompenso_cardiaco.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
