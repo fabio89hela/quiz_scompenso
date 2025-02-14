@@ -1,5 +1,7 @@
 streamlit 
 crewai 
-langchain-core 
-langchain-openai
+openai
 pysqlite3-binary
+pdfplumber
+pandas
+xlsxwriter
