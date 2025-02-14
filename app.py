@@ -47,6 +47,7 @@ if st.button("Genera Quiz"):
 
         # ✅ Otteniamo il testo reale dai PDF
         testo_completo = extract_text_from_pdfs(uploaded_files)
+        st.write(testo_completo)
 
         if not testo_completo.strip():
             st.error("Errore: Il testo estratto dai PDF è vuoto. Assicurati che i PDF contengano testo selezionabile.")
