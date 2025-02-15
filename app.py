@@ -80,21 +80,43 @@ def create_crew(use_quiz, pdf_text=None):
         extract_themes_task = Task(
         description=f"Analizza il contenuto del testo {pdf_text} e identifica i 5 temi più importanti.",
         agent=analyst,
-        expected_output="Elenco di 5 temi"
+        expected_output="Elenco di 5 temi in italiano"
         )
 
         generate_questions_task = Task(
-        description="Per ogni tema individuato, genera 5 domande con 4 opzioni di risposta.",
+        description="""Per ogni tema individuato, genera esattamente 5 domande in italiano.  
+    Ogni domanda deve avere 4 opzioni di risposta in italiano:
+    - Una corretta ✅
+    - Una parzialmente corretta ⚠️
+    - Una errata ❌
+    - Una errata e dannosa ❌❌  
+    Restituisci l'output in un formato chiaro, in italiano e strutturato, come segue:  
+
+    Tema: [Nome del tema]  
+    1. [Domanda]  
+       A) [Opzione 1]  
+       B) [Opzione 2]  
+       C) [Opzione 3]  
+       D) [Opzione 4]  
+    (Ripeti per le 5 domande)""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
         expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande e 4 opzioni di risposta"
         )
 
         score_answers_task = Task(
-        description="Valuta il grado di correttezza delle opzioni di risposta e assegna un punteggio tra -5,0,2,5.",
+        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre**  
+    uno dei seguenti punteggi:  
+    - ✅ Corretta: **5**  
+    - ⚠️ Parzialmente corretta: **2**  
+    - ❌ Errata: **0**  
+    - ❌❌ Errata e dannosa: **-5**  
+      
+    **Assicurati che ogni domanda abbia esattamente una risposta con ogni punteggio**.  
+    Non assegnare lo stesso punteggio a più di un'opzione.""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
-        expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
+        expected_output="Elenco in italiano di 5 temi e per ogni tema elenco di 5 domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
         )
     
     else:
