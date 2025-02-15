@@ -38,7 +38,7 @@ def create_agents(use_web, pdf_text=None):
     """Crea agenti CrewAI per Ricerca Web o Analisi PDF"""
     
     llm = ChatOpenAI(
-        model_name="gpt-3.5-turbo",  # Puoi usare "gpt-4"
+        model_name="gpt-4",  # Puoi usare "gpt-3.5-turbo"
         openai_api_key=OPENAI_API_KEY
     )
 
