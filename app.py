@@ -53,7 +53,7 @@ def create_agents(use_web, pdf_text=None):
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal="Creare 10 domande in italiano per ogni tema individuato, con 4 opzioni di risposta, di cui una corretta, una parzialmente corretta, una errata ma senza danni, una errata ma con potenziali conseguenze negative.",
+    goal="Creare 10 domande in italiano per ogni tema individuato, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
     backstory="Esperto nella creazione di quiz e test di valutazione.",
     verbose=True,
     allow_delegation=True,
@@ -62,7 +62,7 @@ def create_agents(use_web, pdf_text=None):
 
     answer_evaluator = Agent(
     role="Valutatore Risposte",
-    goal="Assegnare un punteggio tra -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
+    goal="Assegnare uno dei seguenti punteggi: -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
     backstory="Esperto nella valutazione di domande a scelta multipla.",
     verbose=True,
     allow_delegation=True,
