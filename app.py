@@ -146,7 +146,7 @@ if option == "Quiz":
 
         use_quiz= True
     
-        crew = create_crew(use_web, user_question, pdf_text)
+        crew = create_crew(use_quiz, pdf_text)
     
         st.write("### 🚀 Elaborazione della risposta...")
         result = crew.kickoff()
