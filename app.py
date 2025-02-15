@@ -53,7 +53,7 @@ def create_agents(use_web, pdf_text=None):
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal="Creare 10 domande in italiano per ogni tema individuato, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
+    goal="Creare 5 domande in italiano per ogni tema individuato, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
     backstory="Esperto nella creazione di quiz e test di valutazione.",
     verbose=True,
     allow_delegation=True,
@@ -62,7 +62,7 @@ def create_agents(use_web, pdf_text=None):
 
     answer_evaluator = Agent(
     role="Valutatore Risposte",
-    goal="Assegnare uno dei seguenti punteggi: -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
+    goal="Assegnare uno dei seguenti punteggi -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
     backstory="Esperto nella valutazione di domande a scelta multipla.",
     verbose=True,
     allow_delegation=True,
@@ -87,14 +87,14 @@ def create_crew(use_quiz, pdf_text=None):
         description="Per ogni tema individuato, genera 5 domande con 4 opzioni di risposta.",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output="Elenco di domande e relative opzioni di risposta"
+        expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande e 4 opzioni di risposta"
         )
 
         score_answers_task = Task(
         description="Valuta il grado di correttezza delle opzioni di risposta e assegna un punteggio tra -5,0,2,5.",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
-        expected_output="Elenco di 5 temi e per ogni tema 5 domande, 4 opzioni di risposte e punteggio per ogni risposta"
+        expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
         )
     
     else:
