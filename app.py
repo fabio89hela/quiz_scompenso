@@ -87,12 +87,13 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         generate_questions_task = Task(
-        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano.  
+        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento {pdf_text}.  
     Ogni domanda deve avere 4 opzioni di risposta in italiano:
     - Una corretta ✅
     - Una parzialmente corretta ⚠️
     - Una errata ❌
     - Una errata e dannosa ❌❌  
+    Le domande devono essere a difficoltà crescente, ovvero fare riferimento ad elementi e concetti sempre più specifici del documento. 
     Restituisci l'output in italiano e strutturato come segue:  
     Tema1: [Nome del tema 1]  
     1. [Domanda 1]  
@@ -116,7 +117,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     (Ripeti per gli altri temi)""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output=f"Elenco di {x} temi e, per ogni tema, un elenco di {y} domande e 4 opzioni di risposta"
+        expected_output=f"Elenco di {x} temi e, per ogni tema, un elenco di {y} domande e 4 opzioni di risposta di difficoltà crescente. "
         )
 
         score_answers_task = Task(
@@ -181,7 +182,7 @@ if option == "Quiz":
         os.remove(pdf_path)  # Cancella il file temporaneo dopo la lettura
 
         use_quiz= True
-        x=3
+        x=4
         y=3
         crew = create_crew(use_quiz,x,y, pdf_text)
     
