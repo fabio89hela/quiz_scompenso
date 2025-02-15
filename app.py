@@ -84,7 +84,7 @@ def create_crew(use_quiz, pdf_text=None):
         )
 
         generate_questions_task = Task(
-        description="Per ogni tema individuato, genera 10 domande con 4 opzioni di risposta.",
+        description="Per ogni tema individuato, genera 5 domande con 4 opzioni di risposta.",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
         expected_output="Elenco di domande e relative opzioni di risposta"
@@ -94,7 +94,7 @@ def create_crew(use_quiz, pdf_text=None):
         description="Valuta il grado di correttezza delle opzioni di risposta e assegna un punteggio tra -5,0,2,5.",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
-        expected_output="Elenco di domande, relative opzioni di risposte e punteggi"
+        expected_output="Elenco di 5 temi e per ogni tema 5 domande, 4 opzioni di risposte e punteggio per ogni risposta"
         )
     
     else:
