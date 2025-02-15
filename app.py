@@ -77,7 +77,7 @@ def create_agents(use_web,x,y, pdf_text=None):
 def create_crew(use_quiz,x,y, pdf_text=None):
     """Crea il CrewAI e definisce i task in base alla scelta dell'utente."""
     
-    analyst, quiz_creator, answer_evaluator = create_agents(use_quiz, pdf_text)
+    analyst, quiz_creator, answer_evaluator = create_agents(use_quiz,x,y, pdf_text)
 
     if use_quiz:
         extract_themes_task = Task(
