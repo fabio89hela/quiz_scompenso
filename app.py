@@ -74,7 +74,7 @@ def create_agents(use_web,x,y, pdf_text=None):
 
     return analyst, quiz_creator, answer_evaluator
 
-def create_crew(use_quiz, pdf_text=None):
+def create_crew(use_quiz,x,y, pdf_text=None):
     """Crea il CrewAI e definisce i task in base alla scelta dell'utente."""
     
     analyst, quiz_creator, answer_evaluator = create_agents(use_quiz, pdf_text)
@@ -180,8 +180,9 @@ if option == "Quiz":
         os.remove(pdf_path)  # Cancella il file temporaneo dopo la lettura
 
         use_quiz= True
-    
-        crew = create_crew(use_quiz, pdf_text)
+        x=3
+        y=3
+        crew = create_crew(use_quiz,x,y, pdf_text)
     
         st.write("### 🚀 Elaborazione della risposta...")
         result = crew.kickoff()
