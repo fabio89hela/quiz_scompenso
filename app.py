@@ -44,7 +44,7 @@ def create_agents(use_web, pdf_text=None):
 
     analyst = Agent(
     role="Analista Tematico",
-    goal="Identificare i 5 temi principali in un documento PDF." if use_quiz else "TBD per storie",
+    goal=f"Identificare i 5 temi principali nel testo {pdf_text}." if use_quiz else "TBD per storie",
     backstory="Esperto in analisi testuale e individuazione di argomenti chiave.",
     verbose=True,
     allow_delegation=True,
@@ -53,7 +53,7 @@ def create_agents(use_web, pdf_text=None):
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal="Creare 10 domande per ogni tema, con 4 opzioni di risposta, di cui una corretta, una parzialmente corretta, una errata ma senza danni, una errata ma con potenziali conseguenze negative.",
+    goal="Creare 10 domande in italiano per ogni tema individuato, con 4 opzioni di risposta, di cui una corretta, una parzialmente corretta, una errata ma senza danni, una errata ma con potenziali conseguenze negative.",
     backstory="Esperto nella creazione di quiz e test di valutazione.",
     verbose=True,
     allow_delegation=True,
@@ -78,7 +78,7 @@ def create_crew(use_quiz, pdf_text=None):
 
     if use_quiz:
         extract_themes_task = Task(
-        description="Analizza il contenuto del PDF e identifica i 5 temi più importanti.",
+        description=f"Analizza il contenuto del testo {pdf_text} e identifica i 5 temi più importanti.",
         agent=analyst,
         expected_output="Elenco di 5 temi"
         )
