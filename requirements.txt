@@ -4,5 +4,6 @@ openai
 pysqlite3-binary
 langchain-openai
 langchain
+langchain-community
 duckduckgo-search
 pypdf
