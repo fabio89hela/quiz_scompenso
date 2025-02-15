@@ -13,18 +13,18 @@ import os
 OPENAI_API_KEY = "your-api-key-here"
 
 # Funzione per cercare informazioni aggiornate su DuckDuckGo
-def cerca_su_web(query: str) -> str:
-    """Esegue una ricerca su DuckDuckGo e restituisce i primi risultati."""
-    with DDGS() as ddgs:
-        risultati = [f"{r['title']} - {r['href']}" for r in ddgs.text(query, max_results=3)]
-    return "\n".join(risultati)
+#def cerca_su_web(query: str) -> str:
+#    """Esegue una ricerca su DuckDuckGo e restituisce i primi risultati."""
+#    with DDGS() as ddgs:
+#        risultati = [f"{r['title']} - {r['href']}" for r in ddgs.text(query, max_results=3)]
+#    return "\n".join(risultati)
 
-# Creiamo un Tool valido per CrewAI
-search_tool = Tool(
-    name="Ricerca Web",
-    func=lambda query: cerca_su_web(query),
-    description="Usa DuckDuckGo per trovare informazioni aggiornate su un argomento."
-)
+# Tool valido per CrewAI
+#search_tool = Tool(
+#    name="Ricerca Web",
+#    func=lambda query: cerca_su_web(query),
+#    description="Usa DuckDuckGo per trovare informazioni aggiornate su un argomento."
+#)
 
 # Funzione per leggere il testo da un PDF
 def estrai_testo_da_pdf(pdf_path):
@@ -42,71 +42,85 @@ def create_agents(use_web, pdf_text=None):
         openai_api_key=OPENAI_API_KEY
     )
 
-    researcher = Agent(
-        role="Ricercatore AI",
-        goal="Trovare informazioni aggiornate utilizzando il web" if use_web else "Leggere e analizzare il documento PDF",
-        backstory="Un esperto di ricerca su internet" if use_web else "Un esperto nella lettura e comprensione di documenti complessi",
-        verbose=True,
-        allow_delegation=True,
-        tools=[search_tool] if use_web else [],  # Se è web usa il Tool, altrimenti no
-        llm=llm
+    analyst = Agent(
+    role="Analista Tematico",
+    goal="Identificare i 5 temi principali in un documento PDF." if use_quiz else "TBD per storie",
+    backstory="Esperto in analisi testuale e individuazione di argomenti chiave.",
+    verbose=True,
+    allow_delegation=True,
+    llm=llm  
     )
 
-    writer = Agent(
-        role="Redattore AI",
-        goal="Scrivere una risposta chiara e strutturata basata sulla ricerca" if use_web else "Riassumere e spiegare i contenuti del documento PDF",
-        backstory="Un esperto in scrittura tecnica e comunicazione chiara.",
-        verbose=True,
-        allow_delegation=False,
-        llm=llm
+    quiz_creator = Agent(
+    role="Costruttore di Quiz",
+    goal="Creare 10 domande per ogni tema, con 4 opzioni di risposta, di cui una corretta, una parzialmente corretta, una errata ma senza danni, una errata ma con potenziali conseguenze negative.",
+    backstory="Esperto nella creazione di quiz e test di valutazione.",
+    verbose=True,
+    allow_delegation=True,
+    llm=llm
     )
 
-    reviewer = Agent(
-        role="Revisore AI",
-        goal="Verificare la qualità e la chiarezza della risposta finale.",
-        backstory="Un editor attento ai dettagli che migliora la leggibilità del testo.",
-        verbose=True,
-        allow_delegation=False,
-        llm=llm
+    answer_evaluator = Agent(
+    role="Valutatore Risposte",
+    goal="Assegnare un punteggio tra -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
+    backstory="Esperto nella valutazione di domande a scelta multipla.",
+    verbose=True,
+    allow_delegation=True,
+    llm=llm
     )
 
-    return researcher, writer, reviewer
+    return analyst, quiz_creator, answer_evaluator
 
-def create_crew(use_web, user_question, pdf_text=None):
+def create_crew(use_quiz, pdf_text=None):
     """Crea il CrewAI e definisce i task in base alla scelta dell'utente."""
     
-    researcher, writer, reviewer = create_agents(use_web, pdf_text)
+    analyst, quiz_creator, answer_evaluator = create_agents(use_quiz, pdf_text)
 
-    if use_web:
-        research_task = Task(
-            description=f"Ricerca informazioni affidabili su: {user_question}",
-            agent=researcher,
-            expected_output="Ricerca strutturata e dettagliata"
+    if use_quiz:
+        extract_themes_task = Task(
+        description="Analizza il contenuto del PDF e identifica i 5 temi più importanti.",
+        agent=analyst,
+        expected_output="Elenco di 5 temi"
         )
+
+        generate_questions_task = Task(
+        description="Per ogni tema individuato, genera 10 domande con 4 opzioni di risposta.",
+        agent=quiz_creator,
+        depends_on=[extract_themes_task]  # Dipende dall'estrazione dei temi,
+        expected_output="Elenco di domande e relative opzioni di risposta"
+        )
+
+        score_answers_task = Task(
+        description="Valuta il grado di correttezza delle opzioni di risposta e assegna un punteggio tra -5,0,2,5.",
+        agent=answer_evaluator,
+        depends_on=[generate_questions_task]  # Dipende dalla generazione delle domande,
+        expected_output="Elenco di domande, relative opzioni di risposte e punteggi"
+        )
+    
     else:
-        research_task = Task(
-            description=f"Analizza il contenuto del PDF {pdf_text} cercando le informazioni per rispondere alla domanda {user_question}.",
-            agent=researcher,
-            expected_output="Risposta sulla base del contenuto del PDF"
+        extract_themes_task = Task(
+        description="TBD per storie",
+        agent=analyst,
+        expected_output="TBD per storie"
+        )        
+
+        generate_questions_task = Task(
+        description="TBD per storie",
+        agent=quiz_creator,
+        depends_on=[extract_themes_task] , 
+        expected_output="TBD per storie"
         )
 
-    writing_task = Task(
-        description="Scrivi una risposta dettagliata e ben strutturata basata sulla ricerca." if use_web else "Scrivi una risposta in italiano alla domanda e ben strutturata basata sulla ricerca.",
-        agent=writer,
-        depends_on=[research_task],
-        expected_output="Testo chiaro ed autoesplicativo"
-    )
-
-    review_task = Task(
-        description="Migliora la leggibilità e correggi eventuali errori nella risposta.",
-        agent=reviewer,
-        depends_on=[writing_task],
-        expected_output="Testo chiaro ed esplicativo"
-    )
+        score_answers_task = Task(
+        description="TBD per storie",
+        agent=answer_evaluator,
+        depends_on=[generate_questions_task],  
+        expected_output="TBD per storie"
+        )
 
     crew = Crew(
-        agents=[researcher], #, writer, reviewer],
-        tasks=[research_task] #, writing_task, review_task]
+        agents=[analyst, quiz_creator, answer_evaluator],
+        tasks=[extract_themes_task , generate_questions_task, score_answers_task]
     )
 
     return crew
@@ -115,15 +129,13 @@ def create_crew(use_web, user_question, pdf_text=None):
 st.title("🤖 AI Collaborativa con CrewAI e Streamlit")
 
 # Selettore per la modalità di ricerca
-option = st.radio("Scegli la fonte delle informazioni:", ["🔍 Ricerca Web", "📄 Analisi PDF"])
+option = st.radio("Scegli tra:", ["Quiz", "Storie"])
 
-user_question = st.text_input("Inserisci una domanda:")
+uploaded_file = st.file_uploader("Carica un file PDF", type="pdf")
 
 pdf_text = None  # Inizializza la variabile per il testo del PDF
 
-if option == "📄 Analisi PDF":
-    uploaded_file = st.file_uploader("Carica un file PDF", type="pdf")
-    
+if option == "Quiz":
     if uploaded_file is not None:
         pdf_path = os.path.join("temp.pdf")
         with open(pdf_path, "wb") as f:
@@ -132,13 +144,12 @@ if option == "📄 Analisi PDF":
         pdf_text = estrai_testo_da_pdf(pdf_path)  # Estrai il testo dal PDF
         os.remove(pdf_path)  # Cancella il file temporaneo dopo la lettura
 
-if user_question and (option == "🔍 Ricerca Web" or (option == "📄 Analisi PDF" and pdf_text)):
-    use_web = option == "🔍 Ricerca Web"
+        use_quiz= True
     
-    crew = create_crew(use_web, user_question, pdf_text)
+        crew = create_crew(use_web, user_question, pdf_text)
     
-    st.write("### 🚀 Elaborazione della risposta...")
-    result = crew.kickoff()
+        st.write("### 🚀 Elaborazione della risposta...")
+        result = crew.kickoff()
     
-    st.subheader("📝 Risposta Generata")
-    st.write(result)
+        st.subheader("📝 Risposta Generata")
+        st.write(result)
