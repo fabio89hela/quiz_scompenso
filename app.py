@@ -127,7 +127,9 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - ❌ Errata: **0**  
     - ❌❌ Errata e dannosa: **-5**  
     **Assicurati che ogni domanda abbia esattamente una risposta con ogni punteggio**.  
-    Non assegnare lo stesso punteggio a più di un'opzione.""",
+    Non assegnare lo stesso punteggio a più di un'opzione.
+    Restituisci l'output in italiano e strutturato come segue:
+    [Tema 1] - [Domanda 1] - [Risposta 1] - [Punteggio 1] - [Risposta 2] - [Punteggio 2] - [Risposta 3] - [Punteggio 3] - [Risposta 4] - [Punteggio 4] e ripeti per le {y} domande di ogni tema e per gli {x} temi.""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
         expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
