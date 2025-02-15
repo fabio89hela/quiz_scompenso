@@ -79,24 +79,28 @@ def create_crew(use_web, user_question, pdf_text=None):
     if use_web:
         research_task = Task(
             description=f"Ricerca informazioni affidabili su: {user_question}",
-            agent=researcher
+            agent=researcher,
+            expected_output="Ricerca strutturata e dettagliata"
         )
     else:
         research_task = Task(
             description="Analizza il contenuto del PDF e rispondi alla domanda dell'utente basandoti su di esso.",
-            agent=researcher
+            agent=researcher,
+            expected_output="Descrizione dettagliata del PDF"
         )
 
     writing_task = Task(
         description="Scrivi una risposta dettagliata e ben strutturata basata sulla ricerca." if use_web else "Crea un riassunto basato sul contenuto del PDF.",
         agent=writer,
-        depends_on=[research_task]
+        depends_on=[research_task],
+        expected_output="Testo chiaro ed autoesplicativo"
     )
 
     review_task = Task(
         description="Migliora la leggibilità e correggi eventuali errori nella risposta.",
         agent=reviewer,
-        depends_on=[writing_task]
+        depends_on=[writing_task],
+        expected_output="Testo chiaro ed esplicativo"
     )
 
     crew = Crew(
