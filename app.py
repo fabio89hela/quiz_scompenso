@@ -31,6 +31,7 @@ def estrai_testo_da_pdf(pdf_path):
     loader = PyPDFLoader(pdf_path)
     pagine = loader.load()
     testo_completo = "\n".join([pagina.page_content for pagina in pagine])
+    st.write(testo_completo)
     return testo_completo
 
 def create_agents(use_web, pdf_text=None):
