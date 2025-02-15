@@ -34,7 +34,7 @@ def estrai_testo_da_pdf(pdf_path):
     st.write(testo_completo)
     return testo_completo
 
-def create_agents(use_web, pdf_text=None):
+def create_agents(use_web,x,y, pdf_text=None):
     """Crea agenti CrewAI per Ricerca Web o Analisi PDF"""
     
     llm = ChatOpenAI(
@@ -44,27 +44,30 @@ def create_agents(use_web, pdf_text=None):
 
     analyst = Agent(
     role="Analista Tematico",
-    goal=f"Identificare i 5 temi principali nel testo {pdf_text}." if use_quiz else "TBD per storie",
+    goal=f"Identificare i {x} temi principali nel testo {pdf_text}." if use_quiz else "TBD per storie",
     backstory="Esperto in analisi testuale e individuazione di argomenti chiave.",
     verbose=True,
+    memory=True,
     allow_delegation=True,
     llm=llm  
     )
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal="Creare 5 domande in italiano per ogni tema individuato, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
+    goal="Creare {y} domande in italiano per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
     backstory="Esperto nella creazione di quiz e test di valutazione.",
     verbose=True,
+    memory=True,
     allow_delegation=True,
     llm=llm
     )
 
     answer_evaluator = Agent(
     role="Valutatore Risposte",
-    goal="Assegnare uno dei seguenti punteggi -5,0,2,5 a ciascuna opzione di risposta in base al grado di correttezza.",
+    goal="Assegnare un punteggio tra quelli disponibili a ciascuna opzione di risposta in base al grado di correttezza: 5 per risposte corrette, 2 per risposte parzialmente corrette, 0 per risposte errate, -5 per risposte errate e dannose.",
     backstory="Esperto nella valutazione di domande a scelta multipla.",
     verbose=True,
+    memory=True,
     allow_delegation=True,
     llm=llm
     )
@@ -78,20 +81,19 @@ def create_crew(use_quiz, pdf_text=None):
 
     if use_quiz:
         extract_themes_task = Task(
-        description=f"Analizza il contenuto del testo {pdf_text} e identifica i 5 temi più importanti.",
+        description=f"Analizza il contenuto del testo {pdf_text} e identifica i {x} temi più importanti.",
         agent=analyst,
-        expected_output="Elenco di 5 temi in italiano"
+        expected_output="Elenco di 3 temi in italiano"
         )
 
         generate_questions_task = Task(
-        description="""Per ogni tema individuato, genera esattamente 5 domande in italiano.  
+        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano.  
     Ogni domanda deve avere 4 opzioni di risposta in italiano:
     - Una corretta ✅
     - Una parzialmente corretta ⚠️
     - Una errata ❌
     - Una errata e dannosa ❌❌  
-    Restituisci l'output in un formato chiaro, in italiano e strutturato, come segue:  
-
+    Restituisci l'output in italiano e strutturato come segue:  
     Tema1: [Nome del tema 1]  
     1. [Domanda 1]  
        A) [Opzione 1]-[Punteggio 1]
@@ -103,18 +105,18 @@ def create_crew(use_quiz, pdf_text=None):
        B) [Opzione 2]-[Punteggio 2]
        C) [Opzione 3]-[Punteggio 3]
        D) [Opzione 4]-[Punteggio 4]
-    (Ripeti per le 5 domande del tema 1)
+    (Ripeti per le {y} domande del tema 1)
     Tema2: [Nome del tema 2]  
     1. [Domanda 1]  
        A) [Opzione 1]-[Punteggio 1]
        B) [Opzione 2]-[Punteggio 2]
        C) [Opzione 3]-[Punteggio 3]
        D) [Opzione 4]-[Punteggio 4]
-    (Ripeti per le 5 domande del tema 2)
+    (Ripeti per le {y} domande del tema 2)
     (Ripeti per gli altri temi)""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande e 4 opzioni di risposta"
+        expected_output=f"Elenco di {x} temi e, per ogni tema, un elenco di {y} domande e 4 opzioni di risposta"
         )
 
         score_answers_task = Task(
@@ -124,14 +126,12 @@ def create_crew(use_quiz, pdf_text=None):
     - ⚠️ Parzialmente corretta: **2**  
     - ❌ Errata: **0**  
     - ❌❌ Errata e dannosa: **-5**  
-      
     **Assicurati che ogni domanda abbia esattamente una risposta con ogni punteggio**.  
     Non assegnare lo stesso punteggio a più di un'opzione.""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
-        expected_output="Elenco in italiano di 5 temi e per ogni tema elenco di 5 domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
+        expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
         )
-    
     else:
         extract_themes_task = Task(
         description="TBD per storie",
