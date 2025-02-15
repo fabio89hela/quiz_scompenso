@@ -38,7 +38,7 @@ def create_agents(use_web, pdf_text=None):
     """Crea agenti CrewAI per Ricerca Web o Analisi PDF"""
     
     llm = ChatOpenAI(
-        model_name="gpt-4",  # Puoi usare "gpt-3.5-turbo"
+        model_name="gpt-3.5-turbo",  # Puoi usare "gpt-4"
         openai_api_key=OPENAI_API_KEY
     )
 
@@ -92,13 +92,26 @@ def create_crew(use_quiz, pdf_text=None):
     - Una errata e dannosa ❌❌  
     Restituisci l'output in un formato chiaro, in italiano e strutturato, come segue:  
 
-    Tema: [Nome del tema]  
-    1. [Domanda]  
-       A) [Opzione 1]  
-       B) [Opzione 2]  
-       C) [Opzione 3]  
-       D) [Opzione 4]  
-    (Ripeti per le 5 domande)""",
+    Tema1: [Nome del tema 1]  
+    1. [Domanda 1]  
+       A) [Opzione 1]-[Punteggio 1]
+       B) [Opzione 2]-[Punteggio 2]
+       C) [Opzione 3]-[Punteggio 3]
+       D) [Opzione 4]-[Punteggio 4]
+    2. [Domanda 2]  
+       A) [Opzione 1]-[Punteggio 1]
+       B) [Opzione 2]-[Punteggio 2]
+       C) [Opzione 3]-[Punteggio 3]
+       D) [Opzione 4]-[Punteggio 4]
+    (Ripeti per le 5 domande del tema 1)
+    Tema2: [Nome del tema 2]  
+    1. [Domanda 1]  
+       A) [Opzione 1]-[Punteggio 1]
+       B) [Opzione 2]-[Punteggio 2]
+       C) [Opzione 3]-[Punteggio 3]
+       D) [Opzione 4]-[Punteggio 4]
+    (Ripeti per le 5 domande del tema 2)
+    (Ripeti per gli altri temi)""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
         expected_output="Elenco di 5 temi e per ogni tema elenco di 5 domande e 4 opzioni di risposta"
