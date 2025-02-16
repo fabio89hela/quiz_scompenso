@@ -133,10 +133,17 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         review_texts_task = Task(
-        description="""Rivedi le domande e le risposte generate, garantendo che:  
+        description="""Rivedi i testi delle domande e delle risposte generate, garantendo che:  
         - Ogni testo di domanda e opzione di risposta abbia una lunghezza inferiore a 250 caratteri.  
         - Le opzioni di risposta abbiano lunghezze simili tra loro.  
-        Non modificare il significato delle domande o delle risposte, solo la loro formulazione per rispettare i requisiti.""",
+        **Non modificare il significato delle domande o delle risposte**, solo la loro formulazione per rispettare i requisiti e **non modificare i punteggi**.
+        Restituisci il risultato in formato CSV con queste colonne:  
+        - **Tema**  
+        - **Domanda**  
+        - **Risposta 1**, **Punteggio 1**  
+        - **Risposta 2**, **Punteggio 2**  
+        - **Risposta 3**, **Punteggio 3**  
+        - **Risposta 4**, **Punteggio 4**""",
         agent=copy_editor,
         depends_on=[score_answers_task],
         expected_output=f"Elenco di {x} temi e per ogni tema {y} domande, con opzioni di risposta ottimizzate in lunghezza."
