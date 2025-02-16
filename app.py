@@ -53,8 +53,8 @@ def create_agents(use_web,x,y, pdf_text=None):
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa. Rispondi sempre e solo in italiano.",
-    backstory="Esperto nella creazione di quiz e test di valutazione.",
+    goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta (5 punti), una parzialmente corretta (2 punti), una errata (0 punti), una errata e dannosa (-5 punti). Rispondi sempre e solo in italiano.",
+    backstory="Esperto nella creazione di quiz e valutazione di domande a scelta multipla.",
     verbose=True,
     allow_delegation=True,
     llm=llm
@@ -78,20 +78,20 @@ def create_crew(use_quiz,x,y, pdf_text=None):
 
     if use_quiz:
         extract_themes_task = Task(
-        description=f"Analizza il contenuto del testo {pdf_text} e identifica i {x} temi più importanti.",
+        description=f"Analizza il contenuto del PDF {pdf_text} e identifica i {x} temi più importanti.",
         agent=analyst,
-        expected_output="Elenco di 3 temi in italiano"
+        expected_output=f"Elenco di {x} temi in italiano"
         )
 
         generate_questions_task = Task(
         description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento PDF.  
-    Ogni domanda deve avere **esattamente** 4 opzioni di risposta in italiano:
+    Ogni domanda deve avere **esattamente** 4 opzioni di risposta con relativo punteggio, in italiano:
     - ✅ Una corretta **(5 punti)**
     - ⚠️ Una parzialmente corretta **(2 punti)**
     - ❌ Una errata **(0 punti)**
     - ❌❌ Una errata e dannosa **(-5 punti)**  
-    **NON generare meno di {y} domande per tema** e **Non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
-    **Restituisci il risultato in formato CSV con queste colonne:**  
+    **NON generare meno di {y} domande per tema** e **non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
+    Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
     - **Risposta 1**, **Punteggio 1**  
