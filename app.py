@@ -44,20 +44,18 @@ def create_agents(use_web,x,y, pdf_text=None):
 
     analyst = Agent(
     role="Analista Tematico",
-    goal=f"Identificare i {x} temi principali nel testo {pdf_text}." if use_quiz else "TBD per storie",
+    goal=f"Identificare i {x} temi principali nel testo {pdf_text}. Rispondi sempre e solo in italiano." if use_quiz else "TBD per storie",
     backstory="Esperto in analisi testuale e individuazione di argomenti chiave.",
     verbose=True,
-    memory=True,
     allow_delegation=True,
     llm=llm  
     )
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal="Creare {y} domande in italiano per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa.",
+    goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa. Rispondi sempre e solo in italiano.",
     backstory="Esperto nella creazione di quiz e test di valutazione.",
     verbose=True,
-    memory=True,
     allow_delegation=True,
     llm=llm
     )
@@ -67,7 +65,6 @@ def create_agents(use_web,x,y, pdf_text=None):
     goal="Assegnare un punteggio tra quelli disponibili a ciascuna opzione di risposta in base al grado di correttezza: 5 per risposte corrette, 2 per risposte parzialmente corrette, 0 per risposte errate, -5 per risposte errate e dannose.",
     backstory="Esperto nella valutazione di domande a scelta multipla.",
     verbose=True,
-    memory=True,
     allow_delegation=True,
     llm=llm
     )
@@ -87,13 +84,14 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         generate_questions_task = Task(
-        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento {pdf_text}.  
-    Ogni domanda deve avere 4 opzioni di risposta in italiano:
-    - Una corretta ✅
-    - Una parzialmente corretta ⚠️
-    - Una errata ❌
-    - Una errata e dannosa ❌❌  
-    Le domande devono essere a difficoltà crescente, ovvero fare riferimento ad elementi e concetti sempre più specifici del documento. 
+        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento PDF.  
+    Ogni domanda deve avere **esattamente** 4 opzioni di risposta in italiano:
+    - ✅ Una corretta **(5 punti)**
+    - ⚠️ Una parzialmente corretta **(2 punti)**
+    - ❌ Una errata **(0 punti)**
+    - ❌❌ Una errata e dannosa **(-5 punti)**  
+    **NON generare meno di {y} domande per tema.**  
+    Formatta l'output in modo che sia chiaramente separato per tema. 
     Restituisci l'output in italiano e strutturato come segue:  
     Tema1: [Nome del tema 1]  
     1. [Domanda 1]  
@@ -117,7 +115,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     (Ripeti per gli altri temi)""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output=f"Elenco di {x} temi e, per ogni tema, un elenco di {y} domande e 4 opzioni di risposta di difficoltà crescente. "
+        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e 4 opzioni di risposta."
         )
 
         score_answers_task = Task(
@@ -127,9 +125,14 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - ⚠️ Parzialmente corretta: **2**  
     - ❌ Errata: **0**  
     - ❌❌ Errata e dannosa: **-5**  
-    **Assicurati che ogni domanda abbia esattamente una risposta con ogni punteggio**.  
-    Non assegnare lo stesso punteggio a più di un'opzione.
-    Restituisci l'output in italiano e strutturato come un csv con le colonne Tema, Domanda, Risposta 1, Punteggio 1, Risposta 2, Punteggio 2, Risposta 3, Punteggio 3, Risposta 4, Punteggio 4""",
+    **Non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
+    **Restituisci il risultato in formato CSV con queste colonne:**  
+    - **Tema**  
+    - **Domanda**  
+    - **Risposta 1**, **Punteggio 1**  
+    - **Risposta 2**, **Punteggio 2**  
+    - **Risposta 3**, **Punteggio 3**  
+    - **Risposta 4**, **Punteggio 4**""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
         expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
