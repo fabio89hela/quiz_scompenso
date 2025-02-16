@@ -86,11 +86,18 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         generate_questions_task = Task(
         description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento PDF.  
     Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano:
-    - ✅ Una corretta 
-    - ⚠️ Una parzialmente corretta 
-    - ❌ Una errata 
-    - ❌❌ Una errata e dannosa   
-    **NON generare meno di {y} domande per tema** e **non assegnare mai lo stesso punteggio a più di una risposta per domanda.**""",
+    - ✅ Una corretta (5 punti)
+    - ⚠️ Una parzialmente corretta (2 punti)
+    - ❌ Una errata (0 punti)
+    - ❌❌ Una errata e dannosa (-5 punti)   
+    **NON generare meno di {y} domande per tema** 
+    Restituisci il risultato in formato CSV con queste colonne:  
+    - **Tema**  
+    - **Domanda**  
+    - **Risposta 1**, **Punteggio 1**  
+    - **Risposta 2**, **Punteggio 2**  
+    - **Risposta 3**, **Punteggio 3**  
+    - **Risposta 4**, **Punteggio 4**""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
         expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta**."
