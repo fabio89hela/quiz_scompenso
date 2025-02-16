@@ -69,12 +69,23 @@ def create_agents(use_quiz,x,y, pdf_text=None):
     llm=llm
     )
 
-    return analyst, quiz_creator, answer_evaluator
+    copy_editor = Agent(
+        role="Copy-Editor",
+        goal="Rivedere il testo delle domande e delle risposte senza modificarne il significato, ma garantendo che: "
+             "- Ogni domanda e opzione di risposta abbia una lunghezza inferiore a 250 caratteri."
+             "- Le opzioni di risposta abbiano lunghezze simili per evitare squilibri visivi.",
+        backstory="Esperto in revisione di contenuti didattici e uniformità linguistica.",
+        verbose=True,
+        allow_delegation=False,
+        llm=llm
+    )
+    
+    return analyst, quiz_creator, answer_evaluator, copy_editor
 
 def create_crew(use_quiz,x,y, pdf_text=None):
     """Crea il CrewAI e definisce i task in base alla scelta dell'utente."""
     
-    analyst, quiz_creator, answer_evaluator = create_agents(use_quiz,x,y, pdf_text)
+    analyst, quiz_creator, answer_evaluator, copy_editor = create_agents(use_quiz,x,y, pdf_text)
 
     if use_quiz:
         extract_themes_task = Task(
@@ -120,6 +131,16 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
         expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposta e un punteggio per ogni opzione."
         )
+
+        review_texts_task = Task(
+        description="""Rivedi le domande e le risposte generate, garantendo che:  
+        - Ogni testo di domanda e opzione di risposta abbia una lunghezza inferiore a 250 caratteri.  
+        - Le opzioni di risposta abbiano lunghezze simili tra loro.  
+        Non modificare il significato delle domande o delle risposte, solo la loro formulazione per rispettare i requisiti.""",
+        agent=copy_editor,
+        depends_on=[score_answers_task],
+        expected_output=f"Elenco di {x} temi e per ogni tema {y} domande, con opzioni di risposta ottimizzate in lunghezza."
+    )
     else:
         extract_themes_task = Task(
         description="TBD per storie",
@@ -141,9 +162,15 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         expected_output="TBD per storie"
         )
 
+        review_texts_task = Task(
+        description="TBD per storie",
+        agent=analyst,
+        expected_output="TBD per storie"
+        ) 
+        
     crew = Crew(
-        agents=[analyst, quiz_creator, answer_evaluator],
-        tasks=[extract_themes_task , generate_questions_task, score_answers_task]
+        agents=[analyst, quiz_creator, answer_evaluator,copy_editor],
+        tasks=[extract_themes_task , generate_questions_task, score_answers_task,review_texts_task]
     )
 
     return crew
