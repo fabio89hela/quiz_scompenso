@@ -97,13 +97,12 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         score_answers_task = Task(
-        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre** uno dei seguenti punteggi:  
+        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre** uno dei seguenti punteggi, **senza assegnare mai lo stesso punteggio a più di una risposta**:  
     - ✅ Corretta: **5**  
     - ⚠️ Parzialmente corretta: **2**  
     - ❌ Errata: **0**  
     - ❌❌ Errata e dannosa: **-5**  
-    **Non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
-    **Restituisci il risultato in formato CSV con queste colonne:**  
+    Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
     - **Risposta 1**, **Punteggio 1**  
