@@ -97,8 +97,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         score_answers_task = Task(
-        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre**  
-    uno dei seguenti punteggi:  
+        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre** uno dei seguenti punteggi:  
     - ✅ Corretta: **5**  
     - ⚠️ Parzialmente corretta: **2**  
     - ❌ Errata: **0**  
@@ -113,7 +112,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - **Risposta 4**, **Punteggio 4**""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
-        expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposte e un punteggio per ogni opzione di risposta"
+        expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposta e un punteggio per ogni opzione."
         )
     else:
         extract_themes_task = Task(
