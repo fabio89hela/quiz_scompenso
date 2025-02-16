@@ -144,8 +144,8 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
     crew = Crew(
-        agents=[analyst, quiz_creator]#, answer_evaluator],
-        tasks=[extract_themes_task , generate_questions_task]#, score_answers_task]
+        agents=[analyst, quiz_creator],# answer_evaluator],
+        tasks=[extract_themes_task , generate_questions_task],# score_answers_task]
     )
 
     return crew
