@@ -63,7 +63,7 @@ def create_agents(use_quiz,x,y, pdf_text=None):
     answer_evaluator = Agent(
     role="Valutatore Risposte",
     goal="Assegnare un punteggio tra quelli disponibili a ciascuna opzione di risposta in base al grado di correttezza: 5 per risposte corrette, 2 per risposte parzialmente corrette, 0 per risposte errate, -5 per risposte errate e dannose.",
-    backstory="Esperto nella valutazione di domande a scelta multipla.",
+    backstory="Esperto nella valutazione di domande a scelta multipla e nell'assegnazione di punteggi.",
     verbose=True,
     allow_delegation=True,
     llm=llm
@@ -98,10 +98,10 @@ def create_crew(use_quiz,x,y, pdf_text=None):
 
         score_answers_task = Task(
         description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre** uno dei seguenti punteggi, **senza assegnare mai lo stesso punteggio a più di una risposta**:  
-    - ✅ Corretta: **5**  
-    - ⚠️ Parzialmente corretta: **2**  
-    - ❌ Errata: **0**  
-    - ❌❌ Errata e dannosa: **-5**  
+    - ✅ Corretta: **5 punti**  
+    - ⚠️ Parzialmente corretta: **2 punti**  
+    - ❌ Errata: **0 punti**  
+    - ❌❌ Errata e dannosa: **-5 punti**  
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
