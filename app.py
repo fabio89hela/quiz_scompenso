@@ -90,32 +90,17 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - ⚠️ Una parzialmente corretta **(2 punti)**
     - ❌ Una errata **(0 punti)**
     - ❌❌ Una errata e dannosa **(-5 punti)**  
-    **NON generare meno di {y} domande per tema.**  
-    Formatta l'output in modo che sia chiaramente separato per tema. 
-    Restituisci l'output in italiano e strutturato come segue:  
-    Tema1: [Nome del tema 1]  
-    1. [Domanda 1]  
-       A) [Opzione 1]-[Punteggio 1]
-       B) [Opzione 2]-[Punteggio 2]
-       C) [Opzione 3]-[Punteggio 3]
-       D) [Opzione 4]-[Punteggio 4]
-    2. [Domanda 2]  
-       A) [Opzione 1]-[Punteggio 1]
-       B) [Opzione 2]-[Punteggio 2]
-       C) [Opzione 3]-[Punteggio 3]
-       D) [Opzione 4]-[Punteggio 4]
-    (Ripeti per le {y} domande del tema 1)
-    Tema2: [Nome del tema 2]  
-    1. [Domanda 1]  
-       A) [Opzione 1]-[Punteggio 1]
-       B) [Opzione 2]-[Punteggio 2]
-       C) [Opzione 3]-[Punteggio 3]
-       D) [Opzione 4]-[Punteggio 4]
-    (Ripeti per le {y} domande del tema 2)
-    (Ripeti per gli altri temi)""",
+    **NON generare meno di {y} domande per tema** e **Non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
+    **Restituisci il risultato in formato CSV con queste colonne:**  
+    - **Tema**  
+    - **Domanda**  
+    - **Risposta 1**, **Punteggio 1**  
+    - **Risposta 2**, **Punteggio 2**  
+    - **Risposta 3**, **Punteggio 3**  
+    - **Risposta 4**, **Punteggio 4**""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e 4 opzioni di risposta."
+        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta** e **punteggi per ogni opzione di risposta**."
         )
 
         score_answers_task = Task(
@@ -159,8 +144,8 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
     crew = Crew(
-        agents=[analyst, quiz_creator, answer_evaluator],
-        tasks=[extract_themes_task , generate_questions_task, score_answers_task]
+        agents=[analyst, quiz_creator]#, answer_evaluator],
+        tasks=[extract_themes_task , generate_questions_task]#, score_answers_task]
     )
 
     return crew
