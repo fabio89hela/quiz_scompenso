@@ -34,7 +34,7 @@ def estrai_testo_da_pdf(pdf_path):
     st.write(testo_completo)
     return testo_completo
 
-def create_agents(use_web,x,y, pdf_text=None):
+def create_agents(use_quiz,x,y, pdf_text=None):
     """Crea agenti CrewAI per Ricerca Web o Analisi PDF"""
     
     llm = ChatOpenAI(
@@ -149,6 +149,9 @@ st.title("🤖 AI Collaborativa con CrewAI e Streamlit")
 # Selettore per la modalità di ricerca
 option = st.radio("Scegli tra:", ["Quiz", "Storie"])
 
+x= st.select_slider("Seleziona il numero di temi", options=[1,2,3,4,5])
+y=st.select_slider("Seleziona il numero di domande per tema",options=[1,2,3,4,5,6,7,8,9,10])
+
 uploaded_file = st.file_uploader("Carica un file PDF", type="pdf")
 
 pdf_text = None  # Inizializza la variabile per il testo del PDF
@@ -163,8 +166,6 @@ if option == "Quiz":
         os.remove(pdf_path)  # Cancella il file temporaneo dopo la lettura
 
         use_quiz= True
-        x=2
-        y=5
         crew = create_crew(use_quiz,x,y, pdf_text)
     
         st.write("### 🚀 Elaborazione della risposta...")
