@@ -182,8 +182,8 @@ if option == "Quiz":
         os.remove(pdf_path)  # Cancella il file temporaneo dopo la lettura
 
         use_quiz= True
-        x=5
-        y=10
+        x=2
+        y=5
         crew = create_crew(use_quiz,x,y, pdf_text)
     
         st.write("### 🚀 Elaborazione della risposta...")
