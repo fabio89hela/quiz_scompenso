@@ -53,8 +53,8 @@ def create_agents(use_web,x,y, pdf_text=None):
 
     quiz_creator = Agent(
     role="Costruttore di Quiz",
-    goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta (5 punti), una parzialmente corretta (2 punti), una errata (0 punti), una errata e dannosa (-5 punti). Rispondi sempre e solo in italiano.",
-    backstory="Esperto nella creazione di quiz e valutazione di domande a scelta multipla.",
+    goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa. Rispondi sempre e solo in italiano.",
+    backstory="Esperto nella creazione di quiz in base a temi specifici e contenuti testuali.",
     verbose=True,
     allow_delegation=True,
     llm=llm
@@ -85,22 +85,15 @@ def create_crew(use_quiz,x,y, pdf_text=None):
 
         generate_questions_task = Task(
         description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento PDF.  
-    Ogni domanda deve avere **esattamente** 4 opzioni di risposta con relativo punteggio, in italiano:
-    - ✅ Una corretta **(5 punti)**
-    - ⚠️ Una parzialmente corretta **(2 punti)**
-    - ❌ Una errata **(0 punti)**
-    - ❌❌ Una errata e dannosa **(-5 punti)**  
-    **NON generare meno di {y} domande per tema** e **non assegnare mai lo stesso punteggio a più di una risposta per domanda.**  
-    Restituisci il risultato in formato CSV con queste colonne:  
-    - **Tema**  
-    - **Domanda**  
-    - **Risposta 1**, **Punteggio 1**  
-    - **Risposta 2**, **Punteggio 2**  
-    - **Risposta 3**, **Punteggio 3**  
-    - **Risposta 4**, **Punteggio 4**""",
+    Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano:
+    - ✅ Una corretta 
+    - ⚠️ Una parzialmente corretta 
+    - ❌ Una errata 
+    - ❌❌ Una errata e dannosa   
+    **NON generare meno di {y} domande per tema** e **non assegnare mai lo stesso punteggio a più di una risposta per domanda.**""",
         agent=quiz_creator,
         depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta** e **punteggi per ogni opzione di risposta**."
+        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta**."
         )
 
         score_answers_task = Task(
@@ -144,8 +137,8 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
     crew = Crew(
-        agents=[analyst, quiz_creator],# answer_evaluator],
-        tasks=[extract_themes_task , generate_questions_task],# score_answers_task]
+        agents=[analyst, quiz_creator, answer_evaluator],
+        tasks=[extract_themes_task , generate_questions_task, score_answers_task]
     )
 
     return crew
