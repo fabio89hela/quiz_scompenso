@@ -143,10 +143,11 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         - **Risposta 1**, **Punteggio 1**  
         - **Risposta 2**, **Punteggio 2**  
         - **Risposta 3**, **Punteggio 3**  
-        - **Risposta 4**, **Punteggio 4**""",
+        - **Risposta 4**, **Punteggio 4**
+        **Assicurati di avere esattamente {x} temi, {y} domande, 4 opzioni di risposte per domande e un punteggio per ogni opzione di risposta""",
         agent=copy_editor,
         depends_on=[score_answers_task],
-        expected_output=f"Elenco di {x} temi e per ogni tema {y} domande, con opzioni di risposta ottimizzate in lunghezza."
+        expected_output=f"Elenco ottimizzato in lunghezza in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposta e un punteggio per ogni opzione."
     )
     else:
         extract_themes_task = Task(
