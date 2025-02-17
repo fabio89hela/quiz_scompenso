@@ -111,7 +111,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         generate_questions_task = Task(
-        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel testo estrapolato per ogni tema.  
+        description=f"""Per difficoltà di una domanda si intende il livello di somiglianza tra le risposte. Per ognuno dei {x} temi individuati, genera esattamente {y} domande a difficoltà crescente in italiano in base alle informazioni contenute nel testo estrapolato per ogni tema.  
     Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano:
     - ✅ Una corretta (5 punti)
     - ⚠️ Una parzialmente corretta (2 punti)
@@ -150,7 +150,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
 
         review_texts_task = Task(
         description="""Rivedi i testi delle domande e delle risposte generate, garantendo che:  
-        - Ogni testo di domanda e opzione di risposta abbia una lunghezza inferiore a 250 caratteri.  
+        - Ogni testo di domanda e opzione di risposta abbia una lunghezza inferiore a 400 caratteri.  
         - Le opzioni di risposta abbiano lunghezze simili tra loro.  
         **Non modificare il significato delle domande, il significato delle risposte e i punteggi**.
         Restituisci il risultato in formato CSV con queste colonne:  
