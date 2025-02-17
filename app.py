@@ -112,32 +112,32 @@ def create_crew(use_quiz,x,y, pdf_text=None):
 
         generate_questions_task = Task(
         description=f"""Per difficoltà di una domanda si intende il livello di somiglianza tra le risposte. Per ognuno dei {x} temi individuati, genera esattamente {y} domande a difficoltà crescente in italiano in base alle informazioni contenute nel testo estrapolato per ogni tema.  
-    Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano:
-    - ✅ Una corretta (5 punti)
-    - ⚠️ Una parzialmente corretta (2 punti)
-    - ❌ Una errata (0 punti)
-    - ❌❌ Una errata e potenzialmente dannosa (-5 punti)   
+    Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano, con i seguenti gradi di correttezza:
+    - ✅ Una corretta 
+    - ⚠️ Una parzialmente corretta 
+    - ❌ Una errata 
+    - ❌❌ Una errata e potenzialmente dannosa    
     **NON generare meno di {y} domande per tema** 
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
-    - **Risposta 1**, **Punteggio 1**  
-    - **Risposta 2**, **Punteggio 2**  
-    - **Risposta 3**, **Punteggio 3**  
-    - **Risposta 4**, **Punteggio 4**""",
+    - **Risposta 1**, **Grado di correttezza risposta 1**  
+    - **Risposta 2**, **Grado di correttezza risposta 2**  
+    - **Risposta 3**, **Grado di correttezza risposta 3**  
+    - **Risposta 4**, **Grado di correttezza risposta 4**""",
         agent=quiz_creator,
         depends_on=[organize_themes_task] , # Dipende dall'estrazione dei temi
-        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta**."
+        expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta con relativo grado di correttezza**."
         )
 
         score_answers_task = Task(
         description="""Assegna un punteggio a ogni opzione di risposta secondo le seguenti regole:
     - Ogni risposta deve avere uno dei seguenti punteggi:  
-        - **5 punti se è corretta**  
-        - **2 punti se è parzialmente corretta**  
-        - **0 punti se è errata**  
-        - **-5 punti se è errata e potenzialmente dannosa**  
-    - Per una stessa domanda, non ci possono essere opzioni di risposta con lo stesso punteggio
+        - **5 punti per la risposta corretta**  
+        - **2 punti per la risposta parzialmente corretta**  
+        - **0 punti per la risposta errata**  
+        - **-5 punti per la risposta errata e potenzialmente dannosa**  
+    - Tutte le opzioni di risposta della stessa domanda devono avere punteggi di diversi
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
