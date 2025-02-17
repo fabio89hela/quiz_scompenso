@@ -104,14 +104,14 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         organize_themes_task = Task(
-        description=f"""Per ognuno dei {x} temi individuati, estrapola tutte le parti del testo relative ogni tema""",
+        description=f"""Per ognuno dei {x} temi individuati, estrapola tutte le parti del testo {pdf_text} relative ogni tema""",
         agent=content_organizer,
         depends_on=[extract_themes_task],
         expected_output=f"Testo riorganizzato in {x} temi"
         )
 
         generate_questions_task = Task(
-        description=f"""Per difficoltà di una domanda si intende il livello di somiglianza tra le risposte. Per ognuno dei {x} temi individuati, genera esattamente {y} domande a difficoltà crescente in italiano in base alle informazioni contenute nel testo estrapolato per ogni tema.  
+        description=f"""Per difficoltà di una domanda si intende il livello di somiglianza tra le risposte. Per ognuno dei {x} temi individuati, genera esattamente {y} domande a difficoltà crescente in italiano in base alle informazioni contenute nei testi estrapolati per ogni tema.  
     Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano, con i seguenti gradi di correttezza:
     - ✅ Una corretta 
     - ⚠️ Una parzialmente corretta 
