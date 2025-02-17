@@ -51,6 +51,15 @@ def create_agents(use_quiz,x,y, pdf_text=None):
     llm=llm  
     )
 
+    content_organizer = Agent(
+    role="Organizzatore di contenuti",
+    goal=f"Per ognuno degli {x} temi individuati, estrapola tutti gli elemento del testo che fanno riferiemento ad ogni tema.",
+    backstory="Esperto nella organizzazione di contenuti e nell'analisi di testi complessi.",
+    verbose=True,
+    allow_delegation=True,
+    llm=llm
+    )
+    
     quiz_creator = Agent(
     role="Costruttore di Quiz",
     goal=f"Creare {y} domande per ognuno degli {x} temi individuati, con 4 opzioni di risposta: una corretta, una parzialmente corretta, una errata, una errata e dannosa. Rispondi sempre e solo in italiano.",
@@ -80,18 +89,25 @@ def create_agents(use_quiz,x,y, pdf_text=None):
         llm=llm
     )
     
-    return analyst, quiz_creator, answer_evaluator, copy_editor
+    return analyst, content_organizer, quiz_creator, answer_evaluator, copy_editor
 
 def create_crew(use_quiz,x,y, pdf_text=None):
     """Crea il CrewAI e definisce i task in base alla scelta dell'utente."""
     
-    analyst, quiz_creator, answer_evaluator, copy_editor = create_agents(use_quiz,x,y, pdf_text)
+    analyst, content_organizer, quiz_creator, answer_evaluator, copy_editor = create_agents(use_quiz,x,y, pdf_text)
 
     if use_quiz:
         extract_themes_task = Task(
         description=f"Analizza il contenuto del PDF {pdf_text} e identifica i {x} temi più importanti.",
         agent=analyst,
         expected_output=f"Elenco di {x} temi in italiano"
+        )
+
+        organize_themes_task = Task(
+        description=f"""Per ognuno dei {x} temi individuati, estrapola tutte le parti del testo relative ogni tema""",
+        agent=content_organizer,
+        depends_on=[extract_themes_task],
+        expected_output=f"Testo riorganizzato in {x} temi"
         )
 
         generate_questions_task = Task(
@@ -110,7 +126,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - **Risposta 3**, **Punteggio 3**  
     - **Risposta 4**, **Punteggio 4**""",
         agent=quiz_creator,
-        depends_on=[extract_themes_task] , # Dipende dall'estrazione dei temi
+        depends_on=[organize_themes_task] , # Dipende dall'estrazione dei temi
         expected_output=f"Elenco di {x} temi con **{y} domande per ogni tema** e **4 opzioni di risposta**."
         )
 
@@ -136,7 +152,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         description="""Rivedi i testi delle domande e delle risposte generate, garantendo che:  
         - Ogni testo di domanda e opzione di risposta abbia una lunghezza inferiore a 250 caratteri.  
         - Le opzioni di risposta abbiano lunghezze simili tra loro.  
-        **Non modificare il significato delle domande o delle risposte**, solo la loro formulazione per rispettare i requisiti e **non modificare i punteggi**.
+        **Non modificare il significato delle domande, il significato delle risposte e i punteggi**.
         Restituisci il risultato in formato CSV con queste colonne:  
         - **Tema**  
         - **Domanda**  
