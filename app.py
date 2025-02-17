@@ -116,7 +116,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     - ✅ Una corretta (5 punti)
     - ⚠️ Una parzialmente corretta (2 punti)
     - ❌ Una errata (0 punti)
-    - ❌❌ Una errata e dannosa (-5 punti)   
+    - ❌❌ Una errata e potenzialmente dannosa (-5 punti)   
     **NON generare meno di {y} domande per tema** 
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
@@ -131,11 +131,13 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         score_answers_task = Task(
-        description="""Valuta il grado di correttezza delle opzioni di risposta e assegna **sempre** uno dei seguenti punteggi, **senza assegnare mai lo stesso punteggio a più di una risposta**:  
-    - ✅ Corretta: **5 punti**  
-    - ⚠️ Parzialmente corretta: **2 punti**  
-    - ❌ Errata: **0 punti**  
-    - ❌❌ Errata e dannosa: **-5 punti**  
+        description="""Assegna un punteggio a ogni opzione di risposta secondo le seguenti regole:
+    - Ogni risposta deve avere uno dei seguenti punteggi:  
+        - **5 punti se è corretta**  
+        - **2 punti se è parzialmente corretta**  
+        - **0 punti se è errata**  
+        - **-5 punti se è errata e potenzialmente dannosa**  
+    - Per una stessa domanda, non ci possono essere opzioni di risposta con lo stesso punteggio
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
