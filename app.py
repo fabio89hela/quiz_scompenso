@@ -53,7 +53,7 @@ def create_agents(use_quiz,x,y, pdf_text=None):
 
     content_organizer = Agent(
     role="Organizzatore di contenuti",
-    goal=f"Per ognuno degli {x} temi individuati, estrapola tutti gli elemento del testo che fanno riferiemento ad ogni tema.",
+    goal=f"Per ognuno degli {x} temi individuati, estrapolare tutte le parti del testo che fanno riferiemento ad ogni tema.",
     backstory="Esperto nella organizzazione di contenuti e nell'analisi di testi complessi.",
     verbose=True,
     allow_delegation=True,
@@ -111,7 +111,7 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         )
 
         generate_questions_task = Task(
-        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel documento PDF.  
+        description=f"""Per ognuno dei {x} temi individuati, genera esattamente {y} domande in italiano in base alle informazioni contenute nel testo estrapolato per ogni tema.  
     Ogni domanda deve avere **esattamente** 4 opzioni di risposta, in italiano:
     - ✅ Una corretta (5 punti)
     - ⚠️ Una parzialmente corretta (2 punti)
@@ -193,8 +193,8 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         ) 
         
     crew = Crew(
-        agents=[analyst, quiz_creator, answer_evaluator,copy_editor],
-        tasks=[extract_themes_task , generate_questions_task, score_answers_task,review_texts_task]
+        agents=[analyst, content_organizer, quiz_creator, answer_evaluator,copy_editor],
+        tasks=[extract_themes_task ,organize_themes_task, generate_questions_task, score_answers_task,review_texts_task]
     )
 
     return crew
