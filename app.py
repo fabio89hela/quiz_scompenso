@@ -141,10 +141,10 @@ def create_crew(use_quiz,x,y, pdf_text=None):
     Restituisci il risultato in formato CSV con queste colonne:  
     - **Tema**  
     - **Domanda**  
-    - **Risposta 1**, **Punteggio 1**  
-    - **Risposta 2**, **Punteggio 2**  
-    - **Risposta 3**, **Punteggio 3**  
-    - **Risposta 4**, **Punteggio 4**""",
+    - **Risposta 1**, **Punti risposta 1**  
+    - **Risposta 2**, **Punti risposta 2**  
+    - **Risposta 3**, **Punti risposta 3**  
+    - **Risposta 4**, **Punti risposta 4**""",
         agent=answer_evaluator,
         depends_on=[generate_questions_task] , # Dipende dalla generazione delle domande
         expected_output=f"Elenco in italiano di {x} temi e per ogni tema un elenco di {y} domande, 4 opzioni di risposta e un punteggio per ogni opzione."
@@ -158,10 +158,10 @@ def create_crew(use_quiz,x,y, pdf_text=None):
         Restituisci il risultato in formato CSV con queste colonne:  
         - **Tema**  
         - **Domanda**  
-        - **Risposta 1**, **Punteggio 1**  
-        - **Risposta 2**, **Punteggio 2**  
-        - **Risposta 3**, **Punteggio 3**  
-        - **Risposta 4**, **Punteggio 4**
+        - **Risposta 1**, **Punti risposta 1**  
+        - **Risposta 2**, **Punti risposta 2**  
+        - **Risposta 3**, **Punti risposta 3**  
+        - **Risposta 4**, **Punti risposta 4**
         **Assicurati di avere esattamente {x} temi, {y} domande, 4 opzioni di risposte per domande e un punteggio per ogni opzione di risposta""",
         agent=copy_editor,
         depends_on=[score_answers_task],
